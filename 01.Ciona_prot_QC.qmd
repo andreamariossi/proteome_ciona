@@ -1,0 +1,1086 @@
+---
+title: "Analysis.Ciona_TMTproC_part1"
+author: "Andrea Mariossi"
+date: '`r Sys.Date()`'
+format: 
+  html:
+    toc: true
+    toc-depth: 6
+    toc-location: left
+    fig-width: 12
+    fig-height: 8
+    fig-align: center
+    number-sections: true
+    smooth-scroll: true
+    code-overflow: wrap
+    highlight-style: github
+    theme: Lux
+    max-width: 1800px
+    page-layout: full
+    fig-format: png
+#     fig-format: pdf
+# knitr:
+#   opts_chunk:
+#     dev: cairo_pdf
+execute:
+  echo: false
+  warning: false
+  output: true
+output:
+ html_document:
+editor: visual
+editor_options: 
+  chunk_output_type: inline
+---
+
+## *Ciona* proteome
+
+#### Loading libraries
+
+```{r setup}
+
+#### Global chunk options ------------------------------
+knitr::opts_chunk$set(
+  eval = TRUE, # whether to run code in code chunk
+  include = TRUE, # whether to include the chunk output
+  echo = TRUE, # Whether to show code chunk in final output
+  error = FALSE, # whether to display error messages
+  message = FALSE, # whether to preserve messages
+  warning = FALSE, # whether to preserve warnings
+  fig.align = "center", # give plot room to breathe
+  fig.width = 12,
+  fig.height = 8,
+  fig.path = "/Users/mariossi/Library/CloudStorage/Dropbox-Princeton/Papers/Proteomics_ciona/c.figures_analysis/01.Ciona_prot_QC/" # file path to store plots
+)
+####  --------------------------------------------------
+# out.width  = "100%",  # controls the output size
+
+## Width for code chunks ----------------
+options(width = 1000)
+save_plots <- TRUE
+write_files <- TRUE
+
+#### Packages --------------------------------------
+rm(list = ls(all = TRUE))
+
+# Load the packages to be used.
+library(tidyverse)
+library(readxl)
+library(ggplot2)
+library(ggfortify)
+library(patchwork)
+library(visdat)
+library(VennDiagram)
+library(scales)
+library(ggthemes)
+library(lemon)
+library(colorspace)
+library(ggsankey)
+
+# library(readr)
+# library(broom)
+# library(knitr)
+library(janitor)
+# library(forcats)
+library(matrixStats)# row functions
+library(lamisc) # package with things that make my life easier # devtools::install_github("emilelatour/lamisc")
+
+library(summarytools) # summary all variables
+
+# library(FactoMineR)
+# library(factoextra) # Custom visualizations for clusters
+# library(Mfuzz)
+# library(cluster)    # Clustering algorithms
+# library(dendextend) # color dendogram
+# library(dynamicTreeCut) # dynamic cut of the tree
+
+# library(marray)
+# library(pastecs)
+
+library(viridis)
+library(wesanderson)
+library(RColorBrewer)
+
+# arrange plot
+library(ggrepel)
+library(ggpubr) # multiple plots
+library(grid) #  multiple plots
+library(gridExtra) # arrange plots
+library(lemon) # facet
+library(ggforce)
+library(ggbreak)
+
+```
+
+#### Functions & misc & loading data
+
+```{r functions and misc}
+
+###############################
+#### directories
+###############################
+
+directory_figures <- c("/Users/mariossi/Library/CloudStorage/Dropbox-Princeton/Papers/Proteomics_ciona/c.figures_analysis/")
+
+# Vector with stages in develpmental order
+ciona_stages <- c("unfE", "fertE", "cell16", "iniG", "latN", "midTII", "latTII", "larva")
+
+###############################
+#### color palette
+###############################
+
+ciona_stages_palette <- c("#009392FF", "#39B185FF", "#9CCB86FF", "#E9E29CFF", "#EEB479FF", "#E88471FF", "#CF597EFF", "#D82526FF")
+
+ciona_cluster_palette <- c("#88A0DCFF", "#381A61FF", "#7C4B73FF", "#ED968CFF", "#AB3329FF", "#E78429FF", "#F9D14AFF", "#7FA074FF") # > paletteer::paletteer_d("MetBrewer::Archambault") + MetBrewer::Cassatt2" - Colorblind-Friendly
+
+isoform_palette <- c("#FBE426", "#36b39c", "#f3c300", "#875692", "#f38400", "#a1caf1", "#be0032", "#c2b280", "#848482", "#008856", "#e68fac", "#0067a5", "#f99379", "#604e97", "#f6a600", "#b3446c", "#dcd300", "#882d17", "#8db600", "#654522", "#e25822", "#2b3d26", "#AA0DFE", "#3283FE", "#85660D", "#782AB6", "#565656", "#1C8356", "#16FF32", "#F7E1A0", "#E2E2E2", "#1CBE4F", "#C4451C", "#DEA0FD", "#FE00FA", "#325A9B", "#FEAF16", "#F8A19F", "#90AD1C")
+
+```
+
+### QC MS data with LDA
+
+Starting with checking the quality of MS
+
+#### All fractions together
+
+```{r lda all franctions}
+
+###############################
+#### There are multiple fractions, first combine all
+###############################
+
+# forward = target
+# reverse = decoy
+
+# Files 
+files <- c("LDA_1696944876.csv", "LDA_1696944628.csv", "LDA_1696944697.csv", "LDA_1696944803.csv")
+
+full_paths <- file.path(directory_figures, files)
+
+# list of df
+data_list <- map(full_paths, ~read_csv(.x, col_names = T))
+
+# column names 
+col_names <- read_csv(full_paths[1], n_max = 0) %>% names()
+data_list <- map(data_list, set_names, nm = col_names)
+
+# Bind df together
+LDA_data <- bind_rows(data_list) |>
+  clean_names() |> 
+  dplyr::rename("delta_corr" = "number_916_corr")
+
+LDA_data |>  head()
+
+# the $ in front of the protein are the reverse/decoy ones
+
+###############################
+#### plots
+###############################
+
+LDA_data |> 
+  mutate(direction = if_else(str_detect(reference, "^##"), "reverse", "forward")) |> 
+  filter(str_detect(reference, '_HUMAN_contaminant') & 
+        x_corr > 1 ) |> 
+  ggplot(aes(x=lda_score, fill=direction)) +
+  geom_histogram(binwidth=0.1, position="identity") +
+  scale_fill_manual(values = c("#BDE1C2", "#D20076FF")) +
+  scale_color_manual(values = c("#BDE1C2", "#D20076FF")) +
+  labs(x="LDA score", y="Count", fill="direction") +
+    theme_pubr(base_family = "Avenir") +
+  
+LDA_data |> 
+  mutate(direction = if_else(str_detect(reference, "^##"), "reverse", "forward")) |> 
+  filter(str_detect(reference, '_HUMAN_contaminant') & 
+        x_corr > 1 ) |> 
+  ggplot(aes(x=lda_score, fill=direction,color=direction)) +
+      geom_freqpoly(binwidth = 0.3) +
+  scale_fill_manual(values = c("#BDE1C2", "#D20076FF")) +
+  scale_color_manual(values = c("#BDE1C2", "#D20076FF")) +
+  labs(x="LDA Score", y="Count", fill="direction") +
+  theme_pubr(base_family = "Avenir") 
+
+```
+
+#### Example of a fraction
+
+```{r lda single franction}
+
+###############################
+#### LDA fitlering at 1% FDR change for each fraction - plotting just one as an example
+###############################
+
+# Score Cutoff: 1.7402
+
+lda <-  as_tibble(
+  read_excel(path = paste0(directory_figures, "lda_single_fraction.xlsx"),
+             sheet = "Mariossi_1696882402",
+             # range = cell_cols("A:K"),
+             col_names=TRUE))  |>
+  clean_names()
+
+
+# https://stackoverflow.com/questions/74778096/customize-the-position-of-geom-rug
+limits <- range(lda$lda_score)
+step   <- diff(limits) * 0.1
+size   <- 0.45 * step
+
+plot_lda <- lda %>% 
+  mutate(
+    direction = if_else(str_detect(reference, "^##"), "Decoy", "target"),
+    expression= if_else(direction == "decoy", "5","16"),
+    lda_group = case_when(
+      lda_score > 1.7402 & direction == "target" ~ "Target pass",
+      lda_score < 1.7402 & direction == "target" ~ "Target fail",
+      TRUE ~ as.character(direction)
+    )
+  ) %>%
+  mutate(lda_group = factor(lda_group, levels = c("Target fail", "Target pass", "Decoy"))) %>%
+  filter(x_corr > 1 & lda_score != 0) %>%
+  ggplot(aes(fill=lda_group)) +
+  geom_histogram(aes(x=lda_score, alpha=lda_group), color="black", binwidth=0.1, position="identity") +
+  geom_segment(
+    aes(
+      colour = lda_group,
+      x=lda_score,
+      xend = lda_score,
+      y    = limits[1] - as.numeric(expression) * step + size*10,
+      yend = limits[1] - as.numeric(expression) * step - size*10
+    )
+  )+
+  scale_fill_manual(values = c(`Target fail` = "#BDE1C2", `Target pass` = "#00A087FF", Decoy = "#D20076FF")) +
+  scale_alpha_manual(values = c(`Target fail` = 0.1, `Target pass` = 1, Decoy = 1), guide="none") +
+  scale_color_manual(values = c(`Target fail` = "#BDE1C2", `Target pass` = "#00A087FF", Decoy = "#D20076FF"), guide="none") +
+  annotate("text", x = -1.2, y = 150, size=5,label = "XCorr > 1") +
+  labs(x="LDA score", y="Counts", fill="LDA Group") +
+  theme_pubr(base_family = "Avenir",base_size = 13) + 
+  theme(
+    legend.position=c(0.1, 0.83), 
+    legend.background = element_blank(),
+    legend.title=element_blank()
+  )
+
+plot_lda
+cairo_pdf("plot_lda.pdf", width=8.5, height=5.6)
+print(plot_lda)
+invisible(dev.off())
+
+```
+
+### Descriptive statistics
+
+```{r descriptive stats}
+
+###############################
+#### loading the data
+###############################
+
+ciona_prot.df <- as_tibble(read_delim(paste0(directory_figures, "ciona_proteome_normTo1.tsv")), col_names = T, trim_ws = T)
+
+glimpse(ciona_prot.df)
+vis_dat(ciona_prot.df) # not all Proteins are mapped to Human orthologs
+vis_miss(ciona_prot.df)
+
+# ## loading annoatation from gff3 table  - TFs, signalling molecules, genes names and symbols etc.
+# annotation.gff3.df <-
+# as_tibble(read_excel("/Users/mariossi/Desktop/Annotation/final/df_selex&gff3.xlsx", sheet = "df_selex&gff3", range = cell_cols("A:I"), col_names=TRUE))
+#
+# # Merging protein dynamics with annotaion table
+# KY.TMTproC.df[,which(KY.TMTproC.df$Protein.Id.gene %in% annotation.gff3.df$KY.gene)]
+# KY.TMTproC.df <- left_join(KY.TMTproC.df,annotation.df, by = c("Protein.Id.gene" = "KY.gene.model"),keep =T)
+#
+
+###############################
+#### Summary univariate stats
+###############################
+
+descr(ciona_prot.df,
+  headings = FALSE, # remove headings
+  stats = "common" # most common descriptive statistics
+)
+
+view(dfSummary(ciona_prot.df[, 5:13]))
+
+# check quantiles
+ciona_prot.df %>%
+  dplyr::select(protein_id_transcript, number_of_peptides) %>%
+  add_column(group = "same") %>%
+  # group_by(group) %>%
+  summarise(
+    mean = mean(number_of_peptides),
+    median = median(number_of_peptides),
+    min = min(number_of_peptides),
+    max = max(number_of_peptides),
+    range = diff(range(number_of_peptides, na.rm = TRUE)),
+    n_distinct = n_distinct(number_of_peptides),
+    quantile = quantile(number_of_peptides),
+  ) # |> unnest_wider(quantile)
+
+# sum values per stage => higher in late developing
+ciona_prot.df %>% summarise(across(where(is.numeric), sum))
+
+```
+
+### Peptides & proteins quantification
+
+```{r distribution Number of peptides per protein}
+
+###############################
+#### number of peptides per protein
+###############################
+
+# descriptive statistics for peptides
+ciona_prot.df %>% summarise(tot_peptides = sum(number_of_peptides))
+# we identified 62471 peptides
+
+# % peptites distribution table
+peptides_freqTable <-
+  ciona_prot.df %>%
+  # drop_na(Protein.Id.transcript) %>%
+  arrange(desc(number_of_peptides)) %>%
+  group_by(number_of_peptides) %>%
+  summarise(n = n()) %>%
+  mutate(count = number_of_peptides) %>%
+  group_by(count = case_when(count >= 50 ~ ">=50", TRUE ~ as.character(count))) %>% # sum protein count if peptides higher than 50
+  mutate(value = sum(n)) %>% # mutate(value = sum(n), .groups = 'drop') %>%
+  ungroup() %>%
+  filter(number_of_peptides <= 50) %>%
+  mutate(
+    freq = prop.table(n),
+    freq = value / sum(value), # same way
+    rel.freq = paste0(round(100 * n / sum(n), 1), "%")
+  )
+peptides_freqTable
+
+### Plotting peptides distribution
+plot_peptides_freqTable <- peptides_freqTable %>%
+  # ggplot(aes(reorder(as.factor(n),-n),freq)) +
+  ggplot(aes(number_of_peptides, freq)) +
+  # geom_bar(stat="identity",position = "identity", alpha= .50, fill = "grey78") +
+  geom_col(aes(fill = n), width = 0.9, show.legend = F) +
+  geom_point() +
+  geom_vline(aes(xintercept = 8.80), color = "blue", linetype = "dashed", size = 0.7) + # mean
+  geom_vline(aes(xintercept = 5), color = "red", linetype = 3, size = 0.7) + # median
+  geom_text(aes(label = value), vjust = -1) +
+  scale_y_continuous(labels = scales::percent, expand = c(0, 0.001), limits = c(0, 0.17)) +
+  scale_x_continuous(
+    breaks = peptides_freqTable$number_of_peptides,
+    labels = peptides_freqTable$count,
+    expand = c(0.01, 0)
+  ) +
+  scale_fill_gradientn(colours =  wes_palette("Darjeeling1", 100, type = "continuous")) +
+  labs( # title= "Number of peptides per quantified protein",
+    x = "Number of peptides per quantified protein ",
+    y = "Frequency",
+    # subtitle = "Total peptides: 62.471 \nTotal protein: 7.095"
+  ) +
+  annotate(geom = "text", x = 6.5, y = 0.15, label = "median", size = 5, color = "red", angle = -90) +
+  annotate(geom = "text", x = 10, y = 0.15, label = "mean", size = 5, color = "blue", angle = -90) +
+  annotate(geom = "text", x = 40, y = 0.16, label = "Total protein: 7.095", size = 5, color = "black") +
+  annotate(geom = "text", x = 40, y = 0.15, label = "Total unique protein: 7.057", size = 5, color = "black") +
+  annotate(geom = "text", x = 40, y = 0.14, label = "Total peptides: 62.471", size = 5, color = "black") +
+  theme_pubr(base_family = "Avenir", x.text.angle = 45)
+plot_peptides_freqTable
+
+###############################
+#### number of times a peptide per protein
+###############################
+
+# number of peptides per quantified protein
+ciona_prot.df %>%
+  drop_na(protein_id_transcript) %>%
+  arrange(desc(number_of_peptides)) %>%
+  group_by(number_of_peptides) %>%
+  dplyr::count(number_of_peptides) %>%
+  # filter(n < 50) %>%
+  mutate(number_of_peptides = as.factor(number_of_peptides)) %>%
+  ggplot(aes(x = fct_reorder(number_of_peptides, -n), y = n)) +
+  geom_col(aes(fill = n), width = 0.9, show.legend = F) +
+  scale_x_discrete(expand = c(0.01, 0)) +
+  scale_y_continuous(expand = c(0.02, 0)) +
+  scale_fill_gradientn(colours =  wes_palette("Darjeeling1", 100, type = "continuous")) +
+  ggtitle(label="",
+          subtitle = "Peptides per protein") +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 0.1, hjust = 1),
+    axis.ticks.length = unit(0, "cm")
+  ) +
+  labs(
+    x = "Peptides #",
+    y = "Protein #"
+  ) +
+  theme_pubr(base_family = "Avenir", x.text.angle = 45)
+
+###############################
+#### Circular plot - top peptides x protein
+###############################
+
+plot_peptides_per_protein <- ciona_prot.df %>%
+  arrange(desc(number_of_peptides)) %>%
+  dplyr::select(protein_id_transcript, human_id, number_of_peptides) %>%
+  mutate(id = seq(1, nrow(.))) %>%
+  filter(id < 25) %>%
+  ggplot(aes(x = reorder(as.factor(human_id), number_of_peptides), y = number_of_peptides)) +
+  # geom_col(aes(fill = reorder(as.factor(Protein.Id.gene),number_of_peptides))) +
+  # scale_fill_viridis_d(option = "A") +
+  coord_flip() +
+  geom_col(aes(fill = id)) +
+  scale_fill_gradientn(colours = rev(wes_palette("Royal1", 25, type = "continuous"))) +
+  scale_y_continuous(breaks = c(70, 100, 150, 200, 400, 500, 800, 900)) +
+  labs(x = "", y = "# peptides per protein") +
+  theme_pubr(base_family = "Avenir", legend = "none") +
+  theme(
+    panel.grid.major.x = element_line(color = "black", linewidth = 0.4, linetype = 2),
+    axis.text.x = element_text(size = 14),
+    axis.title.y = element_text(size = 16)
+  ) +
+  coord_polar(start = 0)
+
+plot_peptides_per_protein
+
+cairo_pdf("plot_peptides_freqTable.pdf", width=8.5, height=5.6)
+print(plot_peptides_freqTable)
+invisible(dev.off())
+
+cairo_pdf("plot_peptides_per_protein.pdf", width=8.5, height=5.6)
+print(plot_peptides_per_protein)
+invisible(dev.off())
+
+```
+
+### Mapping isoforms
+
+```{r isoforms}
+
+###############################
+#### Plotting isoforms : checking multiple peptides matching same protein
+###############################
+
+len_uniq(ciona_prot.df$protein_id_gene) # Number of unique protein - 7057
+protein_isoform.list <- unique(ciona_prot.df$protein_id_gene[duplicated(ciona_prot.df$protein_id_gene)]) # list of isoforms: 35 protein have multiple isoforms
+
+###
+# Plotting isoforms dynamics
+###
+
+# protein_isoform_only <-  left_join(protein_isoform_only,annotation.df, by = c("Protein.Id.gene" = "KY.gene.model"),keep =T) # not needed
+protein_isoform_only <- ciona_prot.df %>%
+  get_dupes(protein_id_gene) %>%
+  arrange(desc(dupe_count))
+# unite("protein_id_gene", protein_id_gene, gene.name.KY, extra.info, sep= "-") %>%
+# mutate(protein_id_gene = gsub("-NA",replacement = "", protein_id_gene), protein_id_gene = gsub("KY21.",replacement = "", protein_id_gene))
+
+## Summary with number of isoforms per protein
+protein_isoform_only %>%
+  group_by(protein_id_gene) %>%
+  summarise(dupe_count = length(protein_id_gene)) %>%
+  arrange(desc(dupe_count)) # |>
+# pull(dupe_count) %>%
+# sum()
+
+# Filter the duplicates isoform matching different human genes
+protein_isoform_duplicates.human_id <-
+  protein_isoform_only %>%
+  group_by(protein_id_gene) %>%
+  filter(duplicated(protein_id_gene) & human_id != lag(human_id)) %>%
+  ungroup()
+
+# clean the name
+protein_isoform_duplicates_all.human_id <-
+  protein_isoform_only %>%
+  filter(protein_id_gene %in% protein_isoform_duplicates.human_id$protein_id_gene) |>
+  group_by(protein_id_gene) %>%
+  summarize(human_id = paste(unique(human_id), collapse = " - ")) |>
+  mutate(protein_id_gene_human_id = paste0(protein_id_gene, " - ", human_id))
+
+p <- protein_isoform_only %>%
+  pivot_longer(cols = 7:14, names_to = "stage", names_transform = list(stage = as.factor), values_to = "concentration") %>%
+  mutate(hpf = as.numeric(as.character(recode(stage, `unfE` = "0", `fertE` = "24", `cell16` = "141", `iniG` = "260", `latN` = "434", `midTII` = "632", `latTII` = "796", `larva` = "1038")))) %>%
+  mutate(protein_id_gene_human_id = paste0(protein_id_gene, " - ", human_id)) |>
+  left_join(protein_isoform_duplicates_all.human_id, by = c("protein_id_gene")) %>%
+  mutate(protein_id_gene_human_id.x = if_else(!is.na(human_id.y),
+    protein_id_gene_human_id.y,
+    protein_id_gene_human_id.x
+  )) |>
+  rename(protein_id_gene_human_id = protein_id_gene_human_id.x) |>
+  # slice_head(n = 50) %>%
+  ggplot(aes(hpf, concentration)) +
+  facet_grid(protein_id_gene ~ ., scales = "free_y", ) +
+  geom_point(aes(group = protein_id_transcript, colour = protein_id_gene)) +
+  geom_line(aes(group = protein_id_transcript, colour = protein_id_gene)) +
+  scale_color_manual(values = isoform_palette) +
+  labs(title = "Protein expression over development", x = "Time (hr)", y = "Relative expression") +
+  scale_x_continuous(name = "Hours post fertilization", labels = c("0", "0.4", "2.65", "4.5", "7.4", "10.9", "13.5", "17.5"), breaks = c(0, 24, 141, 260, 434, 632, 796, 1038)) +
+  theme_pubr(base_family = "Avenir") +
+  theme(legend.position = "none", strip.background = element_rect(fill = "white"), strip.text = element_text(colour = "black"), strip.text.y = element_text(angle = 0, size = 8))
+
+p_fin <- p + facet_rep_wrap(~protein_id_gene_human_id, #scales = "free_y", 
+                   repeat.tick.labels = "left") & 
+  theme_pubr(legend = "none", base_family = "Avenir", x.text.angle = 45)
+
+p_fin
+
+cairo_pdf("plot_isofomsDynamics.pdf", width=12, height=8)
+print(p_fin)
+invisible(dev.off())
+
+```
+
+### Top and bottom proteins expressed by stage
+
+```{r top&bottom protein per stage}
+#| warning: false
+
+###############################
+#### Top and bottom proteins expressed by stage
+###############################
+
+# top 10 most abundant entries for each stage.
+top_entries <- ciona_prot.df %>%
+  pivot_longer(cols = 6:13, names_to = "stage", names_transform = list(stage = as.factor), values_to = "concentration") %>%
+  mutate(entry = coalesce(human_id, protein_id_gene)) %>%
+  arrange(stage, desc(concentration)) %>%
+  group_by(stage) %>%
+  slice_max(order_by = concentration, n = 10, with_ties = FALSE)
+
+bottom_entries <- ciona_prot.df %>%
+  pivot_longer(cols = 6:13, names_to = "stage", names_transform = list(stage = as.factor), values_to = "concentration") %>%
+  mutate(entry = coalesce(human_id, protein_id_gene)) %>%
+  arrange(stage, concentration) %>%
+  group_by(stage) %>%
+  slice_min(order_by = concentration, n = 10, with_ties = FALSE)
+
+top_entries %>%
+  mutate(stage = factor(stage, levels = ciona_stages)) %>%
+  ggplot(aes(x = reorder(entry, concentration), y = concentration, fill = stage)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  geom_point(aes(colour = stage)) +
+  facet_wrap(~stage, scales = "free") +
+  labs(title = "Top 10 most abundant", x = "Relative abundance", y = "") +
+  coord_flip() +
+  bottom_entries %>%
+  mutate(stage = factor(stage, levels = ciona_stages)) %>%
+  ggplot(aes(x = reorder(entry, concentration), y = concentration, fill = stage)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  geom_point(aes(colour = stage)) +
+  labs(title = "Top 10 less abundant", y = "Relative abundance", x = "") +
+  facet_wrap(~stage, scales = "free") +
+  coord_flip() & theme_pubr(base_family = "Avenir") + theme(legend.position = "none")
+
+ciona_prot.df %>%
+  pivot_longer(-c(1:5), names_to = "stage", names_transform = as.factor) %>%
+  # filter(str_detect(stage, "_byRowCol")) %>%
+  # mutate(stage = str_remove(stage, "_byRowCol")) %>%
+  ggplot(aes(x = factor(stage, levels = ciona_stages), y = value, fill = stage, color = stage)) +
+  geom_line(aes(group = protein_id_transcript)) +
+  # geom_line(aes(group = protein_id_transcript)) +
+  geom_path(aes(group = protein_id_transcript)) +
+  geom_point(color = "black") +
+  scale_color_manual(values = setNames(ciona_stages_palette, ciona_stages), guide = "none") +
+  scale_fill_manual(values = setNames(ciona_stages_palette, ciona_stages), guide = "none") +
+  labs(x = "Developmental stages", y = "Relative abundance") +
+  theme_pubr(legend = "none", base_family = "Avenir")
+
+# Top 30 changing per stage
+stage_pairs <- list(
+  c("unfE", "fertE"),
+  c("fertE", "cell16"),
+  c("cell16", "iniG"),
+  c("iniG", "latN"),
+  c("latN", "midTII"),
+  c("midTII", "latTII"),
+  c("latTII", "larva")
+)
+
+plots_up <- list()
+
+for (pair in stage_pairs) {
+  selected_stages <- pair
+
+  df_filtered <- ciona_prot.df %>%
+    # filter(get(paste0(selected_stages[2], "_byRowCol")) > get(paste0(selected_stages[1], "_byRowCol"))) %>%
+    filter(get(paste0(selected_stages[2])) > get(paste0(selected_stages[1]))) %>%
+    pivot_longer(-c(1:5), names_to = "stage", names_transform = as.factor) %>%
+    # filter(str_detect(stage, "_byRowCol")) %>%
+    # mutate(stage = str_remove(stage, "_byRowCol")) %>%
+    # filter(str_detect(stage)) %>%
+    # mutate(stage = str_remove(stage)) %>%
+    filter(stage %in% selected_stages) %>%
+    group_by(protein_id_transcript) %>%
+    reframe(
+      protein_id_transcript = protein_id_transcript, human_id = human_id, stage = stage, value = value,
+      diff = value[stage == selected_stages[2]] - value[stage == selected_stages[1]]
+    ) %>%
+    arrange(-diff) |>
+    slice_head(n = 60)
+
+  plot_title <- paste(selected_stages[1], selected_stages[2], sep = " - ")
+
+  plot <- ggplot(df_filtered, aes(
+    x = factor(stage, levels = ciona_stages), y = value,
+    group = protein_id_transcript, color = stage, label = human_id
+  )) +
+    geom_path() +
+    geom_point(size = 3) +
+    ylim(0, 1) +
+    scale_color_manual(values = c(setNames(ciona_stages_palette, ciona_stages), selected_stages = c("#009392FF", "#39B185FF", "#9CCB86FF", "#E9E29CFF", "#EEB479FF", "#E88471FF", "#CF597EFF")), guide = "none") +
+    labs(x = "", y = "Relative abundance") +
+    ggtitle(plot_title) +
+    theme_pubr(legend = "none", base_family = "Avenir") +
+    geom_text_repel(
+      data = function(df) {
+        df %>%
+          # group_by(stage) %>%
+          mutate(human_id = ifelse(human_id == "", protein_id_transcript, human_id)) |>
+          arrange(-value) %>%
+          slice_head(n = 30) |>
+          distinct(human_id, .keep_all = TRUE)
+      }, size = 2.5,
+      color = "grey",
+      box.padding = 0.2,
+      nudge_x = 1,
+      direction = "y",
+      verbose = F,
+      # hjust = "left",
+      max.overlaps = Inf,
+      max.time = 1,
+      max.iter = 1e5, segment.curvature = -0.1,
+      segment.ncp = 3,
+      segment.angle = 20
+    )
+
+
+  plots_up[[plot_title]] <- plot
+}
+
+# combined_plots_up <- wrap_plots(plotlist = plots_up, nrow = 1, align = "v")
+# combined_plots_up
+
+top_plot_2nd <- plots_up$`fertE - cell16` + plots_up$`cell16 - iniG` + plots_up$`iniG - latN` + plots_up$`latN - midTII` + plots_up$`midTII - latTII` + plots_up$`latTII - larva` + plot_layout(nrow = 1) & theme(axis.title.y = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank())
+
+plot_combined_up <- wrap_plots(plots_up$`unfE - fertE`, top_plot_2nd, nrow = 1, widths = c(0.8, 5))
+
+plots_down <- list()
+
+for (pair in stage_pairs) {
+  selected_stages <- pair
+
+  df_filtered <- ciona_prot.df %>%
+    # filter(get(paste0(selected_stages[1], "_byRowCol")) > get(paste0(selected_stages[2], "_byRowCol"))) %>%
+    filter(get(selected_stages[1]) > get(selected_stages[2])) %>%
+    pivot_longer(-c(1:5), names_to = "stage", names_transform = as.factor) %>%
+    filter(stage %in% selected_stages) %>%
+    group_by(protein_id_transcript) %>%
+    reframe(
+      protein_id_transcript = protein_id_transcript, human_id = human_id, stage = stage, value = value,
+      diff = value[stage == selected_stages[1]] - value[stage == selected_stages[2]]
+    ) %>%
+    arrange(-diff) |>
+    slice_head(n = 60)
+
+  plot_title <- paste(selected_stages[1], selected_stages[2], sep = " - ")
+
+  plot <- ggplot(df_filtered, aes(
+    x = factor(stage, levels = ciona_stages), y = value,
+    group = protein_id_transcript, color = stage, label = human_id
+  )) +
+    geom_path() +
+    geom_point(size = 3) +
+    ylim(0, 1) +
+    scale_color_manual(values = c(setNames(ciona_stages_palette, ciona_stages), selected_stages = c("#009392FF", "#39B185FF", "#9CCB86FF", "#E9E29CFF", "#EEB479FF", "#E88471FF", "#CF597EFF")), guide = "none") +
+    labs(x = "", y = "Relative abundance") +
+    ggtitle(plot_title) +
+    theme_pubr(legend = "none", base_family = "Avenir") +
+    geom_text_repel(
+      data = function(df) {
+        df %>%
+          # group_by(stage) %>%
+          mutate(human_id = ifelse(human_id == "", protein_id_transcript, human_id)) |>
+          arrange(diff) %>%
+          slice_head(n = 30) |>
+          distinct(human_id, .keep_all = TRUE)
+      }, size = 2.5,
+      box.padding = 0.2,
+      nudge_x = 1,
+      direction = "y",
+      verbose = F,
+      # hjust = "left",
+      max.overlaps = Inf,
+      color = "grey",
+      max.time = 1,
+      max.iter = 1e5,
+      segment.curvature = -0.1
+    )
+
+  plots_down[[plot_title]] <- plot
+}
+
+# combined_plots_down <- wrap_plots(plotlist = plots_down, nrow = 1, align = "v")
+# combined_plots_down
+
+bottom_plot_2nd <- plots_down$`fertE - cell16` + plots_down$`cell16 - iniG` + plots_down$`iniG - latN` + plots_down$`latN - midTII` + plots_down$`midTII - latTII` + plots_down$`latTII - larva` + plot_layout(nrow = 1) & theme(axis.title.y = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank())
+
+plot_combined_down <- wrap_plots(plots_down$`unfE - fertE`, bottom_plot_2nd, nrow = 1, widths = c(0.8, 5))
+
+plot_TopBottom_protein <-  plot_combined_up / plot_combined_down
+
+plot_TopBottom_protein
+cairo_pdf("plot_TopBottom_protein.pdf", width=8.5, height=5.6)
+print(plot_TopBottom_protein)
+invisible(dev.off())
+
+
+```
+
+### Protein distribution
+
+-   calculation of quantile x stage
+-   Below 10% from max value each protein: we consider the protein not being expressed
+
+#### Boxplots & density
+
+```{r boxplots & density}
+
+###############################
+#### Quantile summary
+###############################
+
+ciona_prot.df %>%
+  pivot_longer(cols = 6:13, names_to = "stage", names_transform = list(stage = as.factor), values_to = "concentration") %>%
+  group_by(stage) %>%
+  mutate(
+    min = quantile(concentration, probs = 0),
+    qnt_10 = quantile(concentration, probs = 0.1),
+    qnt_25 = quantile(concentration, probs = 0.25),
+    qnt_50 = quantile(concentration, probs = 0.5),
+    qnt_75 = quantile(concentration, probs = 0.75),
+    qnt_90 = quantile(concentration, probs = 0.9),
+    max = quantile(concentration, probs = 1),
+    mean = mean(concentration),
+    median = median(concentration),
+    sd = sd(concentration)
+  ) %>%
+  distinct(min, qnt_10, qnt_25, qnt_50, qnt_75, qnt_90, max, mean, median, sd)
+
+###############################
+#### Protein distribution
+###############################
+
+ciona_prot.df %>%
+  pivot_longer(cols = 6:13, names_to = "stage", names_transform = list(stage = as.factor), values_to = "concentration") %>%
+  group_by(stage) %>%
+  mutate(stage = factor(stage, levels = rev(ciona_stages))) %>%
+  ggplot(aes(x = stage, y = concentration)) +
+  ggdist::stat_halfeye(aes(colour = stage, fill = after_scale(lighten(colour, .5))), adjust = .5, scale = 0.7, width = .75, .width = 0, justification = -.4, point_colour = NA) +
+  geom_point(aes(colour = stage, colour = after_scale(darken(colour, .1, space = "HLS"))), fill = "white", shape = 21, stroke = .4, size = 1.5, position = position_jitter(seed = 1, width = .12)) +
+  geom_boxplot(aes(colour = stage, colour = after_scale(darken(colour, .1, space = "HLS")), fill = after_scale(desaturate(lighten(colour, .8), .4))), width = .4, outlier.shape = NA) +
+  stat_summary(geom = "point", size = 2, fun = "mean", aes(colour = stage, colour = after_scale(darken(colour, .3, space = "HLS")))) +
+  coord_flip() +
+  scale_color_manual(values = rev(ciona_stages_palette), guide = "none") +
+  # scale_fill_manual(values = rev(ciona_stages_palette), guide = "none") +
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 8, by = 1), expand = c(.01, 0)) +
+  labs(x = NULL, y = "Relative abundance") +
+  theme_pubr(base_family = "Avenir", base_size = 15) +
+  theme(
+    legend.position = "none",
+    panel.grid.minor = element_blank(),
+    panel.grid.major.y = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text.y = element_text(color = rev(darken(ciona_stages_palette, .1, space = "HLS")), size = 18),
+    axis.title.x = element_text(margin = margin(t = 10), size = 16)
+  )
+```
+
+#### Distribution per chromosome
+
+```{r chromosome distribution}
+
+###############################
+#### Distrubtion of proteins by chromosome
+###############################
+
+# total genes per chromosome
+genes.tot <- read_table("/Users/mariossi/Library/CloudStorage/Dropbox-Princeton/Papers/Proteomics_ciona/a.reference_annotation/annotation_ciona.KY21.tsv")
+
+genesTot_chr <-
+  genes.tot %>%
+  dplyr::select(1) %>%
+  unique() |>
+  mutate(
+    GeneID_chr = str_remove(GeneID, "\\.[^.]+$"), # Extract everything after last .
+    group = gsub("*KY21.", "", GeneID_chr),
+    chr = gsub("*Chr", "", group)
+  ) %>%
+  filter(!grepl("UAContig", chr)) %>%
+  dplyr::count(chr) %>%
+  arrange(as.numeric(chr))
+# pull(n) |>  sum()
+
+# Stats by chromosome in TMTproC
+prot.per.chr.df <-
+  ciona_prot.df %>%
+  group_by(protein_id_transcript) %>%
+  mutate(
+    protein_id_transcript = gsub(".v.*", "", protein_id_transcript), # Extract everything behind ".v."
+    chme = gsub("*KY21.", "", protein_id_transcript),
+    group = gsub("\\..*", "", chme),
+    chr = gsub("*Chr", "", group)
+  ) %>%
+  filter(!grepl("UAContig", group)) %>%
+  group_by(chr) %>%
+  tally(sort = T) %>%
+  arrange(as.numeric(chr))
+
+chr_freq_df <-
+  prot.per.chr.df %>%
+  left_join(genesTot_chr, by = "chr") %>%
+  group_by(chr) %>%
+  mutate(
+    percent = (n.x / n.y), # getting frequency
+    percent_long = paste0(round(percent * 100, 0), " %")
+  )
+
+colourCount <- 14
+getPalette <- colorRampPalette(brewer.pal(14, "Accent"))
+
+plot_prot_per_chr <- chr_freq_df %>%
+  mutate(chr = factor(chr)) %>%
+  ggplot(aes(x = as.numeric(chr), y = percent, fill = getPalette(colourCount))) +
+  geom_col() +
+  scale_x_continuous(breaks = 1:14) +
+  scale_y_continuous(labels = scales::percent_format(),position = "right") +
+  scale_fill_manual(values = colorRampPalette(brewer.pal(8, "Accent"))(colourCount)) +
+  guides(fill = "none") +
+  labs(y = "Coverage [%]", x = "Chromosome", 
+       # title = "Protein distribution per chromosome"
+       ) +
+  # geom_text(aes(label = percent_long), color="black") +
+  theme_pubr(base_family = "Avenir", base_size = 15) +
+  coord_flip(xlim = c(14,1))
+plot_prot_per_chr
+
+cairo_pdf("prot_per_chr.pdf", width=8.5, height=5.6)
+print(plot_prot_per_chr)
+invisible(dev.off())
+
+
+```
+
+#### Distribution over development
+
+#### Protein distribution by selecting \>10% quantile cutoff x protein
+
+same plot as above but selecting 10% quantile by stage not by protein row \##### 10% max per protein
+
+-   Switching to stacked bar plot to highlight differences in enhanced - shared - specific protein
+    distribution over development.
+
+Genes are considered: \* `specific`, if are only detected in a particular stage \* `enhanced` if
+their abundance is at least 3x higher in a particular stage as compared to the average levels in all
+other timepoint \* `core set` are detected in all stages \* `shared` detected in all stages but did
+not show enhanced expression in any stage
+
+-   Four Groups of Elevated Proteins Tissue-enriched: at least five-fold higher than any other
+    tissue; group-enriched: at least five-fold higher in a group of 2 to 7 tissues; enhanced:
+    five-fold higher than the average across all other tissues; tissue-specific: for all the
+    proteins expressed in only one organ.
+
+#### High-Abundance Proteins
+
+We ranked the averaged protein intensities in each tissue and selected those with an abundance which
+is higher than the 75% quartile plus 1.5 times the interquartile range as high-abundance proteins
+(HAPs). About 100 HAPs were detected for each tissue type. For the same proteins in different
+biological replicates of one organ, mean of MS signals is calculated as the intensity of the
+protein.
+
+```{r on-off genes (1)}
+
+###############################
+#### Quantile and 10%
+###############################
+
+prot.matrix <-
+  ciona_prot.df %>%
+  dplyr::select(1, 6:13) %>%
+  column_to_rownames(var = "protein_id_transcript") %>%
+  as.matrix()
+
+# ordering each stage by rank from lowest value to highest
+# rank.by.row_protein.db. <-
+#   as.data.frame(rowRanks(protein.db, ties.method = c("max"), useNames = T)) %>%
+#   rename_all(.funs = ~paste0(., "_rank")) %>%
+#   rownames_to_column(var="protein_id_transcript")
+
+quantiles_prot.matrix <-
+  as.data.frame(rowQuantiles(prot.matrix, probs = c(.10, 1), useNames = T)) %>%
+  rownames_to_column(var = "protein_id_transcript") %>%
+  rename_with(ends_with("%"), .fn = ~ paste0(., "_quantile")) %>%
+  mutate(`10%max.row.value` = (`100%_quantile` * 10) / 100)
+
+ciona_quantProt.df <- ciona_prot.df %>% left_join(quantiles_prot.matrix, by = "protein_id_transcript")
+
+quantile_prot.df <- ciona_quantProt.df %>%
+  group_by(protein_id_transcript) %>%
+  summarise(
+    protein_id_transcript = protein_id_transcript,
+    across(unfE:larva, ~ sum(. > `10%_quantile`))
+  )
+
+quantile_offProt <- quantile_prot.df %>%
+  summarise_all(~ sum(. == 0)) %>%
+  mutate(state = "off")
+quantile_onProt <- quantile_prot.df %>%
+  summarise_all(~ sum(. == 1)) %>%
+  mutate(state = "on")
+onOffProt_10quantile.db <- bind_rows(quantile_offProt, quantile_onProt) %>%
+  relocate(10, 2:9) %>%
+  mutate(protein_id_transcript = "quantile10%")
+
+max10_prot.df <- ciona_quantProt.df %>%
+  group_by(protein_id_transcript) %>%
+  summarise(
+    protein_id_transcript = protein_id_transcript,
+    across(unfE:larva, ~ sum(. > `10%max.row.value`))
+  )
+
+max10_offProt <- max10_prot.df %>%
+  summarise_all(~ sum(. == 0)) %>%
+  mutate(state = "off")
+max10_onProt <- max10_prot.df %>%
+  summarise_all(~ sum(. == 1)) %>%
+  mutate(state = "on")
+onOffProt_10max.db <- bind_rows(max10_offProt, max10_onProt) %>%
+  relocate(10, 2:9) %>%
+  mutate(protein_id_transcript = "max10%")
+
+# complete table
+onOff_prot.db <- onOffProt_10quantile.db %>%
+  bind_rows(onOffProt_10max.db) %>%
+  dplyr::rename(type = protein_id_transcript)
+
+# write.table(KY.TMTproC.df,file = "protein-quantile-rank-on.off.KY21.txt", sep='\t', quote = F, col.names=T)
+
+###############################
+# calculate the number of proteins that are stage-specific and core
+###############################
+
+# 10% quantile is too restrictive
+stage_specific_quantile <-
+  quantile_prot.df %>%
+  mutate(sum_count = rowSums(dplyr::select(., -protein_id_transcript))) %>%
+  filter(sum_count == 1) %>%
+  tally() # 0
+stage_all_quantile <-
+  quantile_prot.df %>%
+  mutate(sum_count = rowSums(dplyr::select(., -protein_id_transcript))) %>%
+  filter(sum_count == 7) %>%
+  tally() # 7095
+
+# 10% max expression value is good
+stage_specific_perc <-
+  max10_prot.df %>%
+  mutate(sum_count = rowSums(dplyr::select(., -protein_id_transcript))) %>%
+  filter(sum_count == 1) %>%
+  tally() # 31
+stage_all_perc <-
+  max10_prot.df %>%
+  mutate(sum_count = rowSums(dplyr::select(., -protein_id_transcript))) %>%
+  filter(sum_count == 8) %>%
+  tally() # 6103 core protein
+
+###############################
+# plotting the info together
+###############################
+onOff_prot_pivot.db <-
+  onOff_prot.db %>%
+  pivot_longer(2:9, names_to = "stage", values_to = "counts") %>%
+  mutate(name = factor(stage, levels = ciona_stages))
+
+onOff_prot_pivot.db %>%
+  ggplot(aes(x = fct_inorder(stage), y = counts, fill = state)) +
+  geom_bar(position = "dodge", stat = "identity") +
+  labs(title = "Protein distribution over development", x = "Stages", y = "Protein count") +
+  facet_grid(type ~ state, scales = "free_y", switch = "y", ) +
+  theme_pubr(base_family = "Avenir", legend = "none")
+
+plot_a <- onOff_prot_pivot.db %>%
+  filter(state == "on") %>%
+  ggplot(aes(x = fct_inorder(stage), y = counts, fill = stage)) +
+  geom_boxplot() +
+  scale_fill_manual(values = ciona_stages_palette, guide = "none") +
+  labs(title = "Counts by state", x = "Stage", y = "Count") +
+  theme_pubr(base_family = "Avenir", legend = "none")
+
+plot_b1 <- onOff_prot_pivot.db %>%
+  filter(state == "on" & type == "quantile10%") %>%
+  ggplot(aes(x = fct_inorder(stage), y = counts, fill = type)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_fill_manual(
+    values = c("#DEA0FD"),
+    labels = c("Quantile 10%"),
+    guide = guide_legend(title = "Type", ncol = 1)
+  ) +
+  labs(title = "Quantile 10%", x = "Stage", y = "Count") +
+  theme_pubr(base_family = "Avenir", legend = "none")
+
+plot_b2 <- onOff_prot_pivot.db %>%
+  filter(state == "on" & type == "max10%") %>%
+  ggplot(aes(x = fct_inorder(stage), y = counts, fill = type)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_hline(yintercept = 6103, color = "black", linetype = "dashed", size = 1) +
+  scale_fill_manual(
+    values = c("#1CBE4F"),
+    labels = c("Max 10%"),
+    guide = guide_legend(title = "Type", ncol = 1)
+  ) +
+  labs(title = "Max 10%", x = "Stage", y = "Count") +
+  theme_pubr(base_family = "Avenir", legend = "none")
+
+plot_b <-
+  onOff_prot_pivot.db %>%
+  filter(state == "on" & (type == "quantile10%" | type == "max10%")) %>%
+  ggplot(aes(x = fct_inorder(stage), y = counts, fill = type)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_fill_manual(
+    values = c("#1CBE4F", "#DEA0FD"),
+    labels = c("Max 10%","Quantile 10%"),
+    guide = guide_legend(title = "Type", ncol = 1)
+  ) +
+  geom_hline(yintercept = 6103, color = "black", linetype = "dashed", size = 1) +
+  theme_pubr(base_family = "Avenir", legend = "none") +
+  labs(title = "Comparison of Quantile 10% and Max 10%")
+
+plot_c <- onOff_prot_pivot.db %>%
+  filter(state == "on" & (type == "quantile10%" | type == "max10%")) %>%
+  ggplot(aes(x = fct_inorder(stage), y = counts)) +
+  geom_point(size = 3) +
+  geom_point(aes(x = stage, y = counts, color = type), size = 3) +
+  geom_line(aes(x = stage, y = counts, color = type, group = type), size = 2) +
+  scale_color_manual(
+    values = c("#1CBE4F", "#DEA0FD"),
+    labels = c("10% Max expression", "10% Quantile"),
+    guide = guide_legend(title = "Type", ncol = 2)
+  ) +
+  theme_pubr(base_family = "Avenir", legend = "bottom") +
+  labs(title = "Protein distribution", x = "Stage", y = "Count")
+
+plot_c + plot_a + (plot_b1 / plot_b2)
+plot_b + plot_c + plot_a
+
+
+plot_onOff <- 
+  onOff_prot_pivot.db %>%
+  filter(state == "on" & type == "max10%") %>%
+  ggplot(aes(x = fct_rev(fct_inorder(stage)), y = counts, fill = name)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  geom_hline(yintercept = 6103, color = "black", linetype = "dashed", size = 1) +
+  labs( x = "Stage", y = "Protein") +
+  scale_y_continuous(breaks = c(0, 2000, 4000, 6000, 7000),position = "right") +
+  scale_fill_manual(values = ciona_stages_palette, guide = "none") +
+  theme_pubr(base_family = "Avenir", legend = "none",base_size = 12) + 
+  coord_flip() 
+
+cairo_pdf("plot_onOff.pdf", width=8.5, height=5.6)
+print(plot_onOff)
+invisible(dev.off())
+
+```
