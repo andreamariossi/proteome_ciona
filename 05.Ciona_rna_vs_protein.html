@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.433">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Andrea Mariossi">
+<meta name="dcterms.date" content="2023-12-11">
+
+<title>05.Ciona_rna_vs_protein</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="05.Ciona_rna_vs_protein_files/libs/clipboard/clipboard.min.js"></script>
+<script src="05.Ciona_rna_vs_protein_files/libs/quarto-html/quarto.js"></script>
+<script src="05.Ciona_rna_vs_protein_files/libs/quarto-html/popper.min.js"></script>
+<script src="05.Ciona_rna_vs_protein_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="05.Ciona_rna_vs_protein_files/libs/quarto-html/anchor.min.js"></script>
+<link href="05.Ciona_rna_vs_protein_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="05.Ciona_rna_vs_protein_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="05.Ciona_rna_vs_protein_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="05.Ciona_rna_vs_protein_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="05.Ciona_rna_vs_protein_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-full toc-left">
+<div id="quarto-sidebar-toc-left" class="sidebar toc-left">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#proteome-transcriptome-comparison" id="toc-proteome-transcriptome-comparison" class="nav-link active" data-scroll-target="#proteome-transcriptome-comparison"><span class="header-section-number">1</span> Proteome &amp; transcriptome comparison</a>
+  <ul>
+  <li><a href="#loading-libraries" id="toc-loading-libraries" class="nav-link" data-scroll-target="#loading-libraries"><span class="header-section-number">1.0.1</span> Loading libraries</a></li>
+  <li><a href="#functions-and-misc" id="toc-functions-and-misc" class="nav-link" data-scroll-target="#functions-and-misc"><span class="header-section-number">1.0.2</span> Functions and misc</a></li>
+  <li><a href="#loading-data" id="toc-loading-data" class="nav-link" data-scroll-target="#loading-data"><span class="header-section-number">1.0.3</span> Loading data</a></li>
+  <li><a href="#overlap-proteome-and-transcriptome" id="toc-overlap-proteome-and-transcriptome" class="nav-link" data-scroll-target="#overlap-proteome-and-transcriptome"><span class="header-section-number">1.1</span> Overlap proteome and transcriptome</a>
+  <ul>
+  <li><a href="#venn-diagram-rna-prot" id="toc-venn-diagram-rna-prot" class="nav-link" data-scroll-target="#venn-diagram-rna-prot"><span class="header-section-number">1.1.1</span> Venn diagram RNA &amp; Prot</a></li>
+  <li><a href="#section" id="toc-section" class="nav-link" data-scroll-target="#section"><span class="header-section-number">1.1.2</span> </a></li>
+  <li><a href="#grouped-scatter-plot-with-marginal-density-plots" id="toc-grouped-scatter-plot-with-marginal-density-plots" class="nav-link" data-scroll-target="#grouped-scatter-plot-with-marginal-density-plots"><span class="header-section-number">1.1.3</span> Grouped scatter plot with marginal density plots</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#scaling-the-databases" id="toc-scaling-the-databases" class="nav-link" data-scroll-target="#scaling-the-databases"><span class="header-section-number">2</span> Scaling the databases</a>
+  <ul>
+  <li><a href="#section-1" id="toc-section-1" class="nav-link" data-scroll-target="#section-1"><span class="header-section-number">2.1</span> </a></li>
+  <li><a href="#histogram-global-correlation-rna-and-protein" id="toc-histogram-global-correlation-rna-and-protein" class="nav-link" data-scroll-target="#histogram-global-correlation-rna-and-protein"><span class="header-section-number">2.2</span> Histogram global correlation RNA and protein</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples"><span class="header-section-number">2.3</span> Examples</a>
+  <ul>
+  <li><a href="#multiple-distances" id="toc-multiple-distances" class="nav-link" data-scroll-target="#multiple-distances"><span class="header-section-number">2.3.0.1</span> multiple distances</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+</div>
+<main class="content column-page-right" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">05.Ciona_rna_vs_protein</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Andrea Mariossi </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">December 11, 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="proteome-transcriptome-comparison" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="proteome-transcriptome-comparison"><span class="header-section-number">1</span> Proteome &amp; transcriptome comparison</h2>
+<p>We start comparing the dynamics of genes to matching proteins.</p>
+<p>Protein values range 0-10 while using multiplex TMTpro while we normalize the counts and/or and take the log2 of the TPM since the amplitude of the RNA counts varies greatly across multiple orders of magnitude.</p>
+<section id="loading-libraries" class="level4" data-number="1.0.1">
+<h4 data-number="1.0.1" class="anchored" data-anchor-id="loading-libraries"><span class="header-section-number">1.0.1</span> Loading libraries</h4>
+</section>
+<section id="functions-and-misc" class="level4" data-number="1.0.2">
+<h4 data-number="1.0.2" class="anchored" data-anchor-id="functions-and-misc"><span class="header-section-number">1.0.2</span> Functions and misc</h4>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list=</span><span class="fu">ls</span>(<span class="at">all=</span><span class="cn">TRUE</span>))</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Vector with stages in develpmental orderpdf</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>ciona_stages <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"unfE"</span>,<span class="st">"fertE"</span>,<span class="st">"cell16"</span>,<span class="st">"iniG"</span>,<span class="st">"latN"</span>,<span class="st">"midTII"</span>,<span class="st">"latTII"</span>,<span class="st">"larva"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>ciona_stages_beautify <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"unfertilised"</span>,<span class="st">"1-cell"</span>,<span class="st">"16-cell"</span>,<span class="st">"110-cell"</span>,<span class="st">"late neurula"</span>,<span class="st">"mid tailbud"</span>,<span class="st">"late tailbud"</span>,<span class="st">"larva"</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">###############################</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">#### Color palette</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">###############################</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>ciona_stages_palette <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"#009392FF"</span>, <span class="st">"#39B185FF"</span>, <span class="st">"#9CCB86FF"</span>, <span class="st">"#E9E29CFF"</span>, <span class="st">"#EEB479FF"</span>, <span class="st">"#E88471FF"</span>, <span class="st">"#CF597EFF"</span>,<span class="st">"#D82526FF"</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>ciona_cluster_palette <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"#88A0DCFF"</span>, <span class="st">"#381A61FF"</span>, <span class="st">"#7C4B73FF"</span>, <span class="st">"#ED968CFF"</span>, <span class="st">"#AB3329FF"</span>, <span class="st">"#E78429FF"</span>, <span class="st">"#F9D14AFF"</span>, <span class="st">"#7FA074FF"</span>) <span class="co"># &gt; paletteer::paletteer_d("MetBrewer::Archambault") + MetBrewer::Cassatt2" - Colorblind-Friendly</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="do">###############################</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="do">#### Functions</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="do">###############################</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>theme_personalised <span class="ot">&lt;-</span> <span class="fu">theme_pubr</span>(<span class="at">base_family =</span> <span class="st">"Avenir"</span>) <span class="sc">+</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">theme</span>(<span class="at">panel.background=</span><span class="fu">element_blank</span>(),</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>                            <span class="at">panel.border=</span><span class="fu">element_blank</span>(),</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>                            <span class="at">panel.grid.major=</span><span class="fu">element_blank</span>(),</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>                            <span class="at">panel.grid.minor=</span><span class="fu">element_blank</span>(),</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>                            <span class="at">plot.background=</span><span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="loading-data" class="level4" data-number="1.0.3">
+<h4 data-number="1.0.3" class="anchored" data-anchor-id="loading-data"><span class="header-section-number">1.0.3</span> Loading data</h4>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="do">###############################</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="do">#### Loading the data</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="do">###############################</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>directory_figures <span class="ot">&lt;-</span>  <span class="fu">c</span>(<span class="st">"/Users/mariossi/Library/CloudStorage/Dropbox-Princeton/Papers/Proteomics_ciona/c.data_analysis/"</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># protein</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>ciona_prot.df <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(<span class="fu">read_delim</span>(<span class="fu">paste0</span>(directory_figures,<span class="st">"ciona_proteome_normToChan.tsv"</span>)),<span class="at">col_names =</span> T,<span class="at">trim_ws =</span> T)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># not all Proteins are mapped to Human orthologs</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># RNA</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># ciona_rna.df &lt;- as_tibble(read_delim(paste0(directory_figures,"ciona_rna_tpm_meanRep.tsv")),col_names = T,trim_ws = T) # no filtering</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>ciona_rna.df <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(<span class="fu">read_delim</span>(<span class="fu">paste0</span>(directory_figures,<span class="st">"ciona_rna_tpmFilt_meanRep.tsv"</span>)),<span class="at">col_names =</span> T,<span class="at">trim_ws =</span> T) <span class="co">#with &gt; 2 TPM filtering</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co"># ciona_rna.df &lt;- ciona_rna.df[,-1]</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>ciona_prot.df <span class="sc">%&gt;%</span> <span class="fu">head</span>() <span class="sc">%&gt;%</span> knitr<span class="sc">::</span><span class="fu">kable</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 9%">
+<col style="width: 5%">
+<col style="width: 6%">
+<col style="width: 11%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+<col style="width: 6%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">protein_id_transcript</th>
+<th style="text-align: left;">protein_id_gene</th>
+<th style="text-align: left;">human_id</th>
+<th style="text-align: left;">hgnc</th>
+<th style="text-align: right;">number_of_peptides</th>
+<th style="text-align: right;">unfE</th>
+<th style="text-align: right;">fertE</th>
+<th style="text-align: right;">cell16</th>
+<th style="text-align: right;">iniG</th>
+<th style="text-align: right;">latN</th>
+<th style="text-align: right;">midTII</th>
+<th style="text-align: right;">latTII</th>
+<th style="text-align: right;">larva</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">KY21.Chr1.10.v1.nonSL2-1</td>
+<td style="text-align: left;">KY21.Chr1.10</td>
+<td style="text-align: left;">TAF9</td>
+<td style="text-align: left;">HGNC:11542</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1.0384392</td>
+<td style="text-align: right;">1.0077389</td>
+<td style="text-align: right;">1.0003652</td>
+<td style="text-align: right;">0.9608200</td>
+<td style="text-align: right;">0.9999666</td>
+<td style="text-align: right;">0.8621860</td>
+<td style="text-align: right;">1.0590843</td>
+<td style="text-align: right;">1.0713998</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">KY21.Chr1.1000.v1.SL1-1</td>
+<td style="text-align: left;">KY21.Chr1.1000</td>
+<td style="text-align: left;">PSMB7</td>
+<td style="text-align: left;">HGNC:9544</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">1.0596224</td>
+<td style="text-align: right;">1.0790983</td>
+<td style="text-align: right;">1.0624815</td>
+<td style="text-align: right;">0.9170924</td>
+<td style="text-align: right;">0.9415440</td>
+<td style="text-align: right;">0.9467448</td>
+<td style="text-align: right;">1.0252110</td>
+<td style="text-align: right;">0.9682055</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">KY21.Chr1.1001.v1.SL1-1</td>
+<td style="text-align: left;">KY21.Chr1.1001</td>
+<td style="text-align: left;">LRRC47</td>
+<td style="text-align: left;">HGNC:29207</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">0.9020774</td>
+<td style="text-align: right;">0.8561668</td>
+<td style="text-align: right;">0.9740771</td>
+<td style="text-align: right;">0.9419530</td>
+<td style="text-align: right;">0.9803115</td>
+<td style="text-align: right;">1.0387335</td>
+<td style="text-align: right;">1.1268801</td>
+<td style="text-align: right;">1.1798004</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">KY21.Chr1.1002.v1.SL1-1</td>
+<td style="text-align: left;">KY21.Chr1.1002</td>
+<td style="text-align: left;">TDRD1</td>
+<td style="text-align: left;">HGNC:11712</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">3.3604154</td>
+<td style="text-align: right;">3.1990297</td>
+<td style="text-align: right;">0.5129556</td>
+<td style="text-align: right;">0.1238170</td>
+<td style="text-align: right;">0.1867595</td>
+<td style="text-align: right;">0.1989376</td>
+<td style="text-align: right;">0.2401913</td>
+<td style="text-align: right;">0.1778940</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">KY21.Chr1.1004.v1.nonSL4-1</td>
+<td style="text-align: left;">KY21.Chr1.1004</td>
+<td style="text-align: left;">DNAJC2</td>
+<td style="text-align: left;">HGNC:13192</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">0.9073397</td>
+<td style="text-align: right;">0.8802152</td>
+<td style="text-align: right;">0.9871140</td>
+<td style="text-align: right;">0.9747736</td>
+<td style="text-align: right;">1.0308486</td>
+<td style="text-align: right;">1.0847565</td>
+<td style="text-align: right;">1.0517058</td>
+<td style="text-align: right;">1.0832467</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">KY21.Chr1.1005.v1.ND1-1</td>
+<td style="text-align: left;">KY21.Chr1.1005</td>
+<td style="text-align: left;">MYO18B</td>
+<td style="text-align: left;">HGNC:18150</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">1.0017549</td>
+<td style="text-align: right;">1.0039570</td>
+<td style="text-align: right;">1.3570765</td>
+<td style="text-align: right;">1.1793695</td>
+<td style="text-align: right;">0.9707127</td>
+<td style="text-align: right;">0.9283415</td>
+<td style="text-align: right;">0.7826826</td>
+<td style="text-align: right;">0.7761052</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>ciona_rna.df <span class="sc">%&gt;%</span> <span class="fu">head</span>() <span class="sc">%&gt;%</span> knitr<span class="sc">::</span><span class="fu">kable</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 11%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 10%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">gene_id</th>
+<th style="text-align: right;">unfE</th>
+<th style="text-align: right;">fertE</th>
+<th style="text-align: right;">cell16</th>
+<th style="text-align: right;">iniG</th>
+<th style="text-align: right;">latN</th>
+<th style="text-align: right;">midTII</th>
+<th style="text-align: right;">latTII</th>
+<th style="text-align: right;">larva</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">ENSCING00000025191</td>
+<td style="text-align: right;">9.533088</td>
+<td style="text-align: right;">7.156839</td>
+<td style="text-align: right;">7.779711</td>
+<td style="text-align: right;">12.361291</td>
+<td style="text-align: right;">14.98522</td>
+<td style="text-align: right;">15.92524</td>
+<td style="text-align: right;">14.65460</td>
+<td style="text-align: right;">15.36091</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ENSCING00000025193</td>
+<td style="text-align: right;">50.173736</td>
+<td style="text-align: right;">46.975561</td>
+<td style="text-align: right;">61.472566</td>
+<td style="text-align: right;">59.434061</td>
+<td style="text-align: right;">102.60615</td>
+<td style="text-align: right;">113.07609</td>
+<td style="text-align: right;">89.19660</td>
+<td style="text-align: right;">121.82331</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ENSCING00000025194</td>
+<td style="text-align: right;">0.000000</td>
+<td style="text-align: right;">24.902842</td>
+<td style="text-align: right;">32.430475</td>
+<td style="text-align: right;">756.095397</td>
+<td style="text-align: right;">893.87127</td>
+<td style="text-align: right;">299.69888</td>
+<td style="text-align: right;">393.11531</td>
+<td style="text-align: right;">789.74888</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ENSCING00000025195</td>
+<td style="text-align: right;">0.000000</td>
+<td style="text-align: right;">0.000000</td>
+<td style="text-align: right;">0.000000</td>
+<td style="text-align: right;">0.000000</td>
+<td style="text-align: right;">33.60902</td>
+<td style="text-align: right;">15.29713</td>
+<td style="text-align: right;">66.00822</td>
+<td style="text-align: right;">0.00000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ENSCING00000025196</td>
+<td style="text-align: right;">0.000000</td>
+<td style="text-align: right;">8.300947</td>
+<td style="text-align: right;">0.000000</td>
+<td style="text-align: right;">8.536514</td>
+<td style="text-align: right;">33.60902</td>
+<td style="text-align: right;">44.35276</td>
+<td style="text-align: right;">39.60493</td>
+<td style="text-align: right;">22.81096</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ENSCING00000025199</td>
+<td style="text-align: right;">0.000000</td>
+<td style="text-align: right;">0.000000</td>
+<td style="text-align: right;">0.000000</td>
+<td style="text-align: right;">0.000000</td>
+<td style="text-align: right;">0.00000</td>
+<td style="text-align: right;">0.00000</td>
+<td style="text-align: right;">0.00000</td>
+<td style="text-align: right;">30.41461</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="overlap-proteome-and-transcriptome" class="level3" data-number="1.1">
+<h3 data-number="1.1" class="anchored" data-anchor-id="overlap-proteome-and-transcriptome"><span class="header-section-number">1.1</span> Overlap proteome and transcriptome</h3>
+<ul>
+<li>We detected 13821 genes over 8 stages of development while we measured 7.095 proteins.</li>
+<li>There are 6998 matching genes -proteins</li>
+<li>59 proteins were only detected by MS while 11.259 were found only by RNA-seq</li>
+</ul>
+<section id="venn-diagram-rna-prot" class="level4" data-number="1.1.1">
+<h4 data-number="1.1.1" class="anchored" data-anchor-id="venn-diagram-rna-prot"><span class="header-section-number">1.1.1</span> Venn diagram RNA &amp; Prot</h4>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>ciona_proteinDetected <span class="ot">&lt;-</span>  ciona_prot.df<span class="sc">$</span>protein_id_gene</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>ciona_geneDetected <span class="ot">&lt;-</span>  ciona_rna.df<span class="sc">$</span>gene_id</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>prot_uniq <span class="ot">&lt;-</span> <span class="fu">unique</span>(ciona_proteinDetected) <span class="co">#7057</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>rna_uniq <span class="ot">&lt;-</span>  <span class="fu">unique</span>(ciona_geneDetected) <span class="co"># 13811 TPM &gt; 2TPM</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>differences <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(prot_uniq, rna_uniq) <span class="co">#59 eg protein only detected by MS,  TPM 73</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>common_elements <span class="ot">&lt;-</span> <span class="fu">intersect</span>(prot_uniq, rna_uniq) <span class="co">#6998 common RNA and protein</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">#no RNA onlyProt</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(differences) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">"Differences:"</span>, <span class="fu">paste</span>(differences, <span class="at">collapse=</span><span class="st">", "</span>)))</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">"No differences found."</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Differences: KY21.Chr1.1100, KY21.Chr1.1264, KY21.Chr1.2014, KY21.Chr1.2153, KY21.Chr1.2221, KY21.Chr1.3, KY21.Chr10.487, KY21.Chr11.1059, KY21.Chr11.641, KY21.Chr12.656, KY21.Chr12.747, KY21.Chr14.759, KY21.Chr14.845, KY21.Chr2.571, KY21.Chr2.813, KY21.Chr3.1291, KY21.Chr3.217, KY21.Chr3.37, KY21.Chr3.462, KY21.Chr3.959, KY21.Chr5.690, KY21.Chr5.792, KY21.Chr6.1, KY21.Chr6.264, KY21.Chr6.272, KY21.Chr7.625, KY21.Chr8.483, KY21.Chr8.484, KY21.Chr8.931, KY21.Chr9.1145, KY21.Chr9.378, KY21.Chr9.772, KY21.Chr9.889, KY21.UAContig3.154, KY21.UAContig3.159, KY21.UAContig8.19"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># write.csv(ciona_proteinDetected,file="prot_entry.csv",row.names=F)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># write.csv(ciona_geneDetected,file="rna_entry.csv",row.names=F)</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(ciona_proteinDetected <span class="sc">%in%</span> ciona_geneDetected)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+FALSE  TRUE 
+   36  7059 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># FALSE  TRUE </span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>   <span class="co"># 59  7036 </span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(ciona_geneDetected <span class="sc">%in%</span> ciona_proteinDetected)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+FALSE  TRUE 
+ 8110  7021 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># FALSE  TRUE </span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co">#  6813  6998</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># fast venny</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>x_gene <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">`</span><span class="at">RNA-seq</span><span class="st">`</span> <span class="ot">=</span> rna_uniq, <span class="st">`</span><span class="at">TMTcPro</span><span class="st">`</span> <span class="ot">=</span> prot_uniq)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>venn_gene <span class="ot">&lt;-</span> <span class="fu">Venn</span>(x_gene)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>data_gene <span class="ot">&lt;-</span> <span class="fu">process_data</span>(venn_gene)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>colorGroups <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"RNA-seq"</span> <span class="ot">=</span> <span class="st">'#ffb42c'</span>, <span class="st">"TMTcPro"</span> <span class="ot">=</span> <span class="st">'#398dc4'</span>) <span class="co"># vector for colors</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>colfunc <span class="ot">&lt;-</span> <span class="fu">colorRampPalette</span>(colorGroups) <span class="co"># use colorRampPalette to create function that interpolates colors </span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>col <span class="ot">&lt;-</span> <span class="fu">colfunc</span>(<span class="dv">3</span>) <span class="co"># call function and create vector of 3 colors</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>venn_overlap_RNA.Protein <span class="ot">&lt;-</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> name), <span class="at">data =</span> <span class="fu">venn_region</span>(data_gene)) <span class="sc">+</span>  <span class="co"># 1. region count layer</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">color =</span> name), <span class="at">data =</span> <span class="fu">venn_setedge</span>(data_gene)) <span class="sc">+</span>  <span class="co"># 2. set edge layer</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> name), <span class="at">data =</span> <span class="fu">venn_setlabel</span>(data_gene), <span class="at">size =</span> <span class="dv">6</span>,<span class="at">color =</span> colorGroups ) <span class="sc">+</span>  <span class="co"># 3. set label layer</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">paste0</span>(count,<span class="st">" ("</span>, scales<span class="sc">::</span><span class="fu">percent</span>(count<span class="sc">/</span><span class="fu">sum</span>(count), <span class="at">accuracy =</span> <span class="dv">2</span>), <span class="st">")"</span>)), <span class="at">data =</span> <span class="fu">venn_region</span>(data_gene),<span class="at">size =</span> <span class="dv">6</span>) <span class="sc">+</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># scale_fill_manual(values = alpha(col, .5)) +</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#ffb42c"</span>,<span class="st">'#398dc4'</span>)) <span class="sc">+</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># labs(title = "Overlap: RNA-seq and TMTcPro") +</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>(<span class="at">base_family =</span> <span class="st">"Arial"</span>) <span class="sc">+</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>venn_overlap_RNA.Protein</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="/Users/mariossi/Library/CloudStorage/Dropbox-Princeton/Papers/Proteomics_ciona/c.data_analysis/05.Ciona_rna_vs_protein/venn%20diagram%20RNA%20&amp;%20Prot-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pretty venny</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>a<span class="ot">=</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">venn.diagram</span>(</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> <span class="fu">list</span>(</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    ciona_geneDetected,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    ciona_proteinDetected),</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">category.names =</span> <span class="fu">c</span>(<span class="st">"Transcripts"</span> , <span class="st">"Proteins"</span>),</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> <span class="st">'venn.overlap.rna.prot.png'</span>,</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">output =</span> T,</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">imagetype=</span><span class="st">"png"</span> ,</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">1000</span> ,</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">1000</span> ,</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">resolution =</span> <span class="dv">600</span>,</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">compression =</span> <span class="st">"lzw"</span>,</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">lwd =</span> <span class="dv">1</span>,</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">col=</span><span class="fu">c</span>(<span class="st">"#ffb42c"</span>,<span class="st">"#398dc4"</span>)  ,</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># fill = c(alpha("#ffb42c",0.3), alpha("#398dc4",0.3)),</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">cex =</span> <span class="fl">0.5</span>,</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">fontfamily =</span> <span class="st">"sans"</span>,</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">cat.cex =</span> <span class="fl">0.5</span>,</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">cat.default.pos =</span> <span class="st">"outer"</span>,</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># margin =0.011,</span></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">cat.pos =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">27</span>, <span class="dv">5</span>),</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">cat.dist =</span> <span class="fu">c</span>(<span class="fl">0.045</span>, <span class="sc">-</span><span class="fl">0.095</span>),</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">cat.fontfamily =</span> <span class="st">"sans"</span>,</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">cat.col =</span> <span class="fu">c</span>(<span class="st">"#ffb42c"</span>, <span class="st">'#398dc4'</span>),</span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">ext.dist =</span> <span class="sc">-</span><span class="fl">0.3</span></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>a</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>input_data <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Transcripts =</span> ciona_geneDetected <span class="sc">|&gt;</span> <span class="fu">unique</span>(),</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Proteins =</span> ciona_proteinDetected<span class="sc">|&gt;</span> <span class="fu">unique</span>()</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">euler</span>(input_data) <span class="co"># Calculate the intersections and fit the Euler diagram</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit, <span class="at">fills =</span> colorGroups)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="/Users/mariossi/Library/CloudStorage/Dropbox-Princeton/Papers/Proteomics_ciona/c.data_analysis/05.Ciona_rna_vs_protein/venn%20diagram%20RNA%20&amp;%20Prot-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cairo_pdf</span>(<span class="st">"pretty_venny.pdf"</span>, <span class="at">width=</span><span class="fl">8.5</span>, <span class="at">height=</span><span class="dv">7</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit, <span class="at">fills =</span> colorGroups)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">invisible</span>(<span class="fu">dev.off</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="do">###############################</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="do">#### histogram plot: global</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="do">###############################</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>ciona_rna.df <span class="ot">&lt;-</span> ciona_rna.df <span class="sc">%&gt;%</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">protein_present =</span> <span class="fu">ifelse</span>(gene_id <span class="sc">%in%</span> ciona_prot.df<span class="sc">$</span>protein_id_gene, <span class="st">"RNA detected as protein"</span>, <span class="st">"RNA not detected as protein"</span>),</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">protein_present =</span> <span class="fu">factor</span>(protein_present, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"RNA detected as protein"</span>, <span class="st">"RNA not detected as protein"</span>)))</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>hist_plot <span class="ot">&lt;-</span> <span class="fu">gghistogram</span>(</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  ciona_rna.df <span class="sc">|&gt;</span> </span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">10</span>), <span class="at">names_to =</span> <span class="st">"stage"</span>,<span class="at">values_to =</span> <span class="st">"expLevel"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(expLevel<span class="sc">&gt;=</span><span class="dv">2</span>) <span class="sc">|&gt;</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">expLevel =</span> <span class="fu">log2</span>(expLevel<span class="sc">+</span><span class="dv">1</span>)),</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> <span class="st">"expLevel"</span>,</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># binwidth = 0.1,</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">bins=</span><span class="dv">200</span>,</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add = "mean",</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># rug = T,</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">color =</span> <span class="st">"protein_present"</span>, </span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">fill =</span> <span class="st">"protein_present"</span>,</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">palette =</span> <span class="fu">c</span>(<span class="st">"#ffb42c"</span>, <span class="st">"grey"</span>),</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab =</span> <span class="st">"Counts"</span> ,</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span><span class="st">"Average log2 (TPM +1)"</span>, </span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">alpha =</span><span class="fl">0.5</span>,</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">size =</span><span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>  theme_personalised <span class="sc">+</span></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.title =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.position =</span> <span class="fu">c</span>(<span class="fl">0.75</span>, <span class="fl">0.85</span>),</span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="st">"white"</span>, <span class="at">color =</span> <span class="st">"black"</span>)) </span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>hist_plot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="/Users/mariossi/Library/CloudStorage/Dropbox-Princeton/Papers/Proteomics_ciona/c.data_analysis/05.Ciona_rna_vs_protein/abundance%20distribution%20of%20all%20transcripts%20detected-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="do">###############################</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="do">#### density plot: all stages</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="do">###############################</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co"># column names except for "gene_id" and "protein_present"</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>column_names <span class="ot">&lt;-</span> <span class="fu">colnames</span>(ciona_rna.df)[<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span>, <span class="fu">ncol</span>(ciona_rna.df))]</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>plots_list_rna <span class="ot">&lt;-</span> <span class="fu">lapply</span>(column_names, <span class="cf">function</span>(column) {</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  filtered_data <span class="ot">&lt;-</span> ciona_rna.df[ciona_rna.df[[column]] <span class="sc">&gt;=</span> <span class="dv">2</span>, ]  <span class="co"># Filter values &gt;= 2</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(filtered_data, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">log2</span>(<span class="fu">get</span>(column) <span class="sc">+</span> <span class="dv">1</span>), <span class="at">fill =</span> protein_present)) <span class="sc">+</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_density</span>(<span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#ffb42c"</span>, <span class="st">"grey"</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"RNA detected as protein"</span>,<span class="st">"RNA not detected as protein"</span>),<span class="st">""</span>) <span class="sc">+</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="fu">paste</span>(column, <span class="st">""</span>), <span class="at">y =</span> <span class="st">"Density"</span>, <span class="at">x =</span> <span class="st">"Average log2 [TPM +1]"</span>) <span class="sc">+</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xlim</span>(<span class="dv">1</span>,<span class="dv">16</span>) <span class="sc">+</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ylim</span>(<span class="dv">0</span>,<span class="fl">0.4</span>) <span class="sc">+</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_pubr</span>() </span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>plots_combined_rna <span class="ot">&lt;-</span> <span class="fu">wrap_plots</span>(plots_list_rna, <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">guides =</span>  <span class="st">"collect"</span>) <span class="sc">&amp;</span> <span class="fu">theme</span>(<span class="at">legend.position=</span> <span class="st">"bottom"</span>) <span class="co">#plots in one row with patchwork</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>plots_combined_rna </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="/Users/mariossi/Library/CloudStorage/Dropbox-Princeton/Papers/Proteomics_ciona/c.data_analysis/05.Ciona_rna_vs_protein/abundance%20distribution%20of%20all%20transcripts%20detected-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cairo_pdf</span>(<span class="st">"hist_proteine_rna_expressed.pdf"</span>, <span class="at">width=</span><span class="fl">8.5</span>, <span class="at">height=</span><span class="dv">7</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(hist_plot <span class="sc">+</span> theme_personalised)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">invisible</span>(<span class="fu">dev.off</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="section" class="level4" data-number="1.1.2">
+<h4 data-number="1.1.2" class="anchored" data-anchor-id="section"><span class="header-section-number">1.1.2</span> </h4>
+</section>
+<section id="grouped-scatter-plot-with-marginal-density-plots" class="level4" data-number="1.1.3">
+<h4 data-number="1.1.3" class="anchored" data-anchor-id="grouped-scatter-plot-with-marginal-density-plots"><span class="header-section-number">1.1.3</span> Grouped scatter plot with marginal density plots</h4>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>ciona_rna_prot.df <span class="ot">&lt;-</span> </span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>      ciona_prot.df <span class="sc">%&gt;%</span>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="dv">6</span><span class="sc">:</span><span class="dv">13</span>,<span class="at">names_to =</span> <span class="st">"stage"</span>,<span class="at">values_to =</span> <span class="st">"value_prot"</span>) <span class="sc">%&gt;%</span>  </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(ciona_rna.df <span class="sc">%&gt;%</span> <span class="fu">pivot_longer</span>(<span class="sc">-</span><span class="fu">c</span>(<span class="st">"gene_id"</span>,<span class="st">"protein_present"</span>), <span class="at">names_to =</span> <span class="st">"stage"</span>,<span class="at">values_to =</span> <span class="st">"value_rna"</span>),</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">by=</span> <span class="fu">c</span>(<span class="st">"protein_id_gene"</span> <span class="ot">=</span> <span class="st">"gene_id"</span>, <span class="st">"stage"</span> <span class="ot">=</span> <span class="st">"stage"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">log2RNA=</span><span class="fu">log2</span>(value_rna<span class="sc">+</span><span class="dv">1</span>),</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">log2Prot=</span><span class="fu">log2</span>(value_prot<span class="sc">+</span><span class="dv">1</span>),</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">stage=</span> <span class="fu">factor</span>(stage, <span class="at">levels =</span> ciona_stages)) <span class="sc">|&gt;</span> </span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>protein_present)</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Add mean line by groups</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>mu <span class="ot">&lt;-</span> ciona_rna_prot.df <span class="sc">%&gt;%</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(stage) <span class="sc">%&gt;%</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">median.prot.stage =</span> <span class="fu">median</span>(value_prot),</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>            <span class="at">median.rna.stage =</span> <span class="fu">median</span>(log2RNA,<span class="at">na.rm=</span><span class="cn">TRUE</span>))</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a><span class="co"># density for protein</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>density.prot <span class="ot">&lt;-</span> </span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(ciona_rna_prot.df,</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> value_prot, <span class="at">fill =</span> stage, <span class="at">color =</span> stage)) <span class="sc">+</span></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">color=</span> <span class="st">"white"</span>,<span class="at">alpha =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept =</span> median.prot.stage, <span class="at">color =</span> stage),<span class="at">data =</span> mu, <span class="at">linetype =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> ciona_stages_palette) <span class="sc">+</span></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Protein (TMTc Pro)"</span>)</span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a><span class="co"># density for RNA</span></span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>density.rna <span class="ot">&lt;-</span> </span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(ciona_rna_prot.df, </span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(log2RNA, <span class="at">fill =</span> stage, <span class="at">color =</span> stage)) <span class="sc">+</span></span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">color=</span> <span class="st">"white"</span>,<span class="at">alpha =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept =</span> median.rna.stage, <span class="at">color =</span> stage), <span class="at">data =</span> mu, <span class="at">linetype =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> ciona_stages_palette) <span class="sc">+</span></span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"log2(TPM+1)"</span>)</span>
+<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>density.rna <span class="sc">+</span> density.prot<span class="sc">+</span> <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">"collect"</span>,<span class="at">ncol =</span> <span class="dv">1</span>) <span class="sc">&amp;</span> <span class="fu">theme_pubr</span>(<span class="at">legend =</span> <span class="st">"bottom"</span>,<span class="at">base_family =</span> <span class="st">"Arial"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="/Users/mariossi/Library/CloudStorage/Dropbox-Princeton/Papers/Proteomics_ciona/c.data_analysis/05.Ciona_rna_vs_protein/grouped%20scatter%20plot%20with%20marginal%20density%20plots-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>ridges.prot <span class="ot">&lt;-</span>   </span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a> ciona_rna_prot.df <span class="sc">%&gt;%</span> </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># mutate(stage=factor(stage, levels=ciona_stages)) %&gt;% # to update the factor levels</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> value_prot, <span class="at">y =</span> stage)) <span class="sc">+</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density_ridges</span>(<span class="fu">aes</span>(<span class="at">fill =</span> stage),<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> ciona_stages_palette) <span class="sc">+</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Protein (TMTc Pro)"</span>) <span class="sc">+</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_pubr</span>(<span class="at">legend =</span> <span class="st">"none"</span>,<span class="at">base_family =</span> <span class="st">"Arial"</span>)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="co"># ridges for rna</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>ridges.rna <span class="ot">&lt;-</span>  ciona_rna_prot.df <span class="sc">%&gt;%</span> </span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a> <span class="fu">ggplot</span>( <span class="fu">aes</span>(<span class="at">x =</span> log2RNA, <span class="at">y =</span> stage)) <span class="sc">+</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density_ridges</span>(<span class="fu">aes</span>(<span class="at">fill =</span> stage),<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> ciona_stages_palette) <span class="sc">+</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"log2(TPM+1)"</span>) <span class="sc">+</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_pubr</span>(<span class="at">legend =</span> <span class="st">"none"</span>,<span class="at">base_family =</span> <span class="st">"Arial"</span>)</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>density.prot <span class="sc">+</span> ridges.prot <span class="sc">+</span> density.rna <span class="sc">+</span> ridges.rna <span class="sc">+</span> <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">"collect"</span>) <span class="sc">&amp;</span> <span class="fu">theme_pubr</span>(<span class="at">legend =</span> <span class="st">"bottom"</span>,<span class="at">base_family =</span> <span class="st">"Arial"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="/Users/mariossi/Library/CloudStorage/Dropbox-Princeton/Papers/Proteomics_ciona/c.data_analysis/05.Ciona_rna_vs_protein/grouped%20scatter%20plot%20with%20marginal%20density%20plots-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cairo_pdf</span>(<span class="st">"rna_protein_density.pdf"</span>, <span class="at">width=</span><span class="fl">8.5</span>, <span class="at">height=</span><span class="fl">5.6</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(ridges.rna <span class="sc">+</span> ridges.prot <span class="sc">+</span> <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">"collect"</span>) <span class="sc">&amp;</span> theme_personalised <span class="sc">&amp;</span> <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>))</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">invisible</span>(<span class="fu">dev.off</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="scaling-the-databases" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="scaling-the-databases"><span class="header-section-number">2</span> Scaling the databases</h2>
+<section id="section-1" class="level3" data-number="2.1">
+<h3 data-number="2.1" class="anchored" data-anchor-id="section-1"><span class="header-section-number">2.1</span> </h3>
+</section>
+<section id="histogram-global-correlation-rna-and-protein" class="level3" data-number="2.2">
+<h3 data-number="2.2" class="anchored" data-anchor-id="histogram-global-correlation-rna-and-protein"><span class="header-section-number">2.2</span> Histogram global correlation RNA and protein</h3>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># # R style</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>ciona_rna_prot_wide <span class="ot">&lt;-</span> ciona_prot.df <span class="sc">|&gt;</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(ciona_rna.df, <span class="at">by=</span> <span class="fu">c</span>(<span class="st">"protein_id_gene"</span><span class="ot">=</span><span class="st">"gene_id"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na.omit</span>() <span class="co">#6,966</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="co"># QN rna</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>ciona_rnaQN.df <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(<span class="fu">read_tsv</span>(<span class="st">"/Users/mariossi/qnTPM_meanRep_ciona_our.tsv"</span>,<span class="at">col_names =</span> T,<span class="at">trim_ws =</span> T))</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="co"># TPM</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 18,301 to 13,811 not 13826</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>keepTPM <span class="ot">&lt;-</span> <span class="fu">rowSums</span>(ciona_rnaQN.df[,<span class="sc">-</span><span class="dv">1</span>]) <span class="sc">&gt;=</span> <span class="dv">2</span> <span class="co"># 2 TPM per gene</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(keepTPM)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>keepTPM
+FALSE  TRUE 
+ 3293 15131 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>Filtciona_rnaQN.df <span class="ot">&lt;-</span> ciona_rnaQN.df[keepTPM,]</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="co"># subsetting TPM data for &gt;5 TPM rowSum =&gt; same result</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>expGenesTPM <span class="ot">&lt;-</span> Filtciona_rnaQN.df<span class="sc">$</span>gene_id</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>TPMFilt_QN_ciona.df <span class="ot">&lt;-</span> ciona_rnaQN.df[ciona_rnaQN.df<span class="sc">$</span>gene_id <span class="sc">%in%</span> expGenesTPM,]</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>ciona_rnaQN.df <span class="ot">&lt;-</span> TPMFilt_QN_ciona.df <span class="sc">%&gt;%</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>gene_id, <span class="at">names_to =</span> <span class="st">"stage"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(stage, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"stage"</span>, <span class="st">"rep"</span>), <span class="at">sep =</span> <span class="st">"_"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gene_id, stage) <span class="sc">%&gt;%</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean =</span> <span class="fu">mean</span>(value)) <span class="sc">%&gt;%</span> <span class="co"># Calculate the row means for each stage by gene</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> stage, <span class="at">values_from =</span> mean) <span class="sc">%&gt;%</span> <span class="co"># Pivot the result to wide format</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># mutate(across(all_of(ciona_stages), ~replace_na(., 0))) %&gt;% # Replace NA values with 0 in all specified columns</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(gene_id, <span class="fu">all_of</span>(ciona_stages)) <span class="sc">%&gt;%</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>ciona_rnaQNmean_normTo1_tidy_wide <span class="ot">&lt;-</span> ciona_rnaQN.df <span class="sc">|&gt;</span></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gene_id) <span class="sc">|&gt;</span></span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># mutate(value= value /sum(value)*8) |&gt;</span></span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">value =</span> <span class="fu">replace_na</span>(value <span class="sc">/</span> <span class="fu">sum</span>(value, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">*</span> <span class="dv">1</span>, <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> name, <span class="at">values_from =</span> value, <span class="at">id_cols =</span> gene_id) <span class="sc">|&gt;</span> </span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() </span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a>ciona_rnaQNmean_norm_tidy_wide <span class="ot">&lt;-</span> ciona_rnaQN.df <span class="sc">|&gt;</span></span>
+<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gene_id) <span class="sc">|&gt;</span></span>
+<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a>  <span class="co"># mutate(value= value /sum(value)*8) |&gt;</span></span>
+<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">value =</span> <span class="fu">replace_na</span>(value <span class="sc">/</span> <span class="fu">sum</span>(value, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">*</span> <span class="dv">8</span>, <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> name, <span class="at">values_from =</span> value, <span class="at">id_cols =</span> gene_id) <span class="sc">|&gt;</span> </span>
+<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() </span>
+<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a>ciona_prot_normTo1_tidy_wide <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(<span class="fu">read_delim</span>(<span class="fu">paste0</span>(directory_figures,<span class="st">"ciona_proteome_normTo1.tsv"</span>)),<span class="at">col_names =</span> T,<span class="at">trim_ws =</span> T)</span>
+<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a>ciona_prot_norm_tidy_wide <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(<span class="fu">read_delim</span>(<span class="fu">paste0</span>(directory_figures,<span class="st">"ciona_proteome_normToChan.tsv"</span>)),<span class="at">col_names =</span> T,<span class="at">trim_ws =</span> T)</span>
+<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-38"><a href="#cb23-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-39"><a href="#cb23-39" aria-hidden="true" tabindex="-1"></a>ciona_rna_prot_wide <span class="ot">&lt;-</span> ciona_prot_normTo1_tidy_wide <span class="sc">|&gt;</span></span>
+<span id="cb23-40"><a href="#cb23-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(ciona_rnaQNmean_normTo1_tidy_wide, <span class="at">by=</span> <span class="fu">c</span>(<span class="st">"protein_id_gene"</span><span class="ot">=</span><span class="st">"gene_id"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb23-41"><a href="#cb23-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na.omit</span>() <span class="co">#6,966</span></span>
+<span id="cb23-42"><a href="#cb23-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-43"><a href="#cb23-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-44"><a href="#cb23-44" aria-hidden="true" tabindex="-1"></a>ciona_rna_prot_wide <span class="ot">&lt;-</span> ciona_prot_norm_tidy_wide <span class="sc">|&gt;</span></span>
+<span id="cb23-45"><a href="#cb23-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(ciona_rnaQNmean_norm_tidy_wide, <span class="at">by=</span> <span class="fu">c</span>(<span class="st">"protein_id_gene"</span><span class="ot">=</span><span class="st">"gene_id"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb23-46"><a href="#cb23-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na.omit</span>() <span class="co">#6,966</span></span>
+<span id="cb23-47"><a href="#cb23-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-48"><a href="#cb23-48" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the annotation data from an Excel file</span></span>
+<span id="cb23-49"><a href="#cb23-49" aria-hidden="true" tabindex="-1"></a>ciona_annGhost_Nitta.df <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"/Users/mariossi/Library/CloudStorage/Dropbox-Princeton/Papers/Proteomics_ciona/a.reference_annotation/KY21_geneAnnotation_ghost&amp;nitta2019.xlsx"</span>,</span>
+<span id="cb23-50"><a href="#cb23-50" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">sheet =</span> <span class="st">"tf_and_signal"</span>,</span>
+<span id="cb23-51"><a href="#cb23-51" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">col_names =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb23-52"><a href="#cb23-52" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">trim_ws =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb23-53"><a href="#cb23-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>()</span>
+<span id="cb23-54"><a href="#cb23-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-55"><a href="#cb23-55" aria-hidden="true" tabindex="-1"></a><span class="co"># Join with protein data</span></span>
+<span id="cb23-56"><a href="#cb23-56" aria-hidden="true" tabindex="-1"></a>ciona_rna_prot_wide.ann <span class="ot">&lt;-</span> ciona_rna_prot_wide  <span class="sc">%&gt;%</span></span>
+<span id="cb23-57"><a href="#cb23-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(ciona_annGhost_Nitta.df, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"protein_id_gene"</span> <span class="ot">=</span> <span class="st">"KY_gene_model"</span>),<span class="at">multiple =</span> <span class="st">"first"</span>)</span>
+<span id="cb23-58"><a href="#cb23-58" aria-hidden="true" tabindex="-1"></a>ciona_rna_prot_wide.annTF <span class="ot">&lt;-</span> ciona_rna_prot_wide.ann <span class="sc">|&gt;</span> <span class="fu">filter</span>(Type <span class="sc">==</span> <span class="st">"TF"</span>)</span>
+<span id="cb23-59"><a href="#cb23-59" aria-hidden="true" tabindex="-1"></a>TFs <span class="ot">&lt;-</span> ciona_rna_prot_wide.annTF<span class="sc">$</span>protein_id_transcript</span>
+<span id="cb23-60"><a href="#cb23-60" aria-hidden="true" tabindex="-1"></a>ciona_rna_prot_wide.annSM <span class="ot">&lt;-</span> ciona_rna_prot_wide.ann <span class="sc">|&gt;</span> <span class="fu">filter</span>(Type <span class="sc">==</span> <span class="st">"signalling"</span>)</span>
+<span id="cb23-61"><a href="#cb23-61" aria-hidden="true" tabindex="-1"></a>SMs <span class="ot">&lt;-</span> ciona_rna_prot_wide.annSM<span class="sc">$</span>protein_id_transcript</span>
+<span id="cb23-62"><a href="#cb23-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-63"><a href="#cb23-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-64"><a href="#cb23-64" aria-hidden="true" tabindex="-1"></a>calculate_correlations <span class="ot">&lt;-</span> <span class="cf">function</span>(data) {</span>
+<span id="cb23-65"><a href="#cb23-65" aria-hidden="true" tabindex="-1"></a>  num_columns <span class="ot">&lt;-</span> <span class="fu">ncol</span>(data) <span class="co"># 16</span></span>
+<span id="cb23-66"><a href="#cb23-66" aria-hidden="true" tabindex="-1"></a>  half_columns <span class="ot">&lt;-</span> num_columns <span class="sc">/</span> <span class="dv">2</span> <span class="co"># 8 rna + 8 protein</span></span>
+<span id="cb23-67"><a href="#cb23-67" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb23-68"><a href="#cb23-68" aria-hidden="true" tabindex="-1"></a>  correlations <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">gene_protein_Id =</span> <span class="fu">rownames</span>(data), </span>
+<span id="cb23-69"><a href="#cb23-69" aria-hidden="true" tabindex="-1"></a>                             <span class="at">correlation =</span> <span class="fu">numeric</span>(<span class="fu">nrow</span>(data))) <span class="co"># create an empty dataframe</span></span>
+<span id="cb23-70"><a href="#cb23-70" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(data)) {</span>
+<span id="cb23-71"><a href="#cb23-71" aria-hidden="true" tabindex="-1"></a>    rna_values <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(data[i, <span class="dv">1</span><span class="sc">:</span>half_columns]) <span class="co"># get vector rna </span></span>
+<span id="cb23-72"><a href="#cb23-72" aria-hidden="true" tabindex="-1"></a>    prot_values <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(data[i, (half_columns <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>num_columns]) <span class="co"># get vector protein </span></span>
+<span id="cb23-73"><a href="#cb23-73" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb23-74"><a href="#cb23-74" aria-hidden="true" tabindex="-1"></a>    correlations[i, <span class="st">"correlation"</span>] <span class="ot">&lt;-</span> <span class="fu">cor</span>(rna_values, prot_values, <span class="at">method =</span> <span class="st">"pearson"</span>)</span>
+<span id="cb23-75"><a href="#cb23-75" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb23-76"><a href="#cb23-76" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb23-77"><a href="#cb23-77" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(correlations)</span>
+<span id="cb23-78"><a href="#cb23-78" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb23-79"><a href="#cb23-79" aria-hidden="true" tabindex="-1"></a>correlation_results <span class="ot">&lt;-</span> <span class="fu">calculate_correlations</span>(ciona_rna_prot_wide.ann[,<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">6</span><span class="sc">:</span><span class="dv">21</span>)] <span class="sc">|&gt;</span>  <span class="fu">column_to_rownames</span>(<span class="st">"protein_id_transcript"</span>)) <span class="sc">|&gt;</span> <span class="fu">as_tibble</span>()</span>
+<span id="cb23-80"><a href="#cb23-80" aria-hidden="true" tabindex="-1"></a>correlation_results<span class="sc">$</span>medianValue <span class="ot">=</span> <span class="fu">median</span>(correlation_results<span class="sc">$</span>correlation)</span>
+<span id="cb23-81"><a href="#cb23-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-82"><a href="#cb23-82" aria-hidden="true" tabindex="-1"></a>medians_df <span class="ot">&lt;-</span> correlation_results <span class="sc">%&gt;%</span></span>
+<span id="cb23-83"><a href="#cb23-83" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">medianValue =</span> <span class="fu">median</span>(correlation, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb23-84"><a href="#cb23-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-85"><a href="#cb23-85" aria-hidden="true" tabindex="-1"></a>hist_plot <span class="ot">&lt;-</span> correlation_results <span class="sc">|&gt;</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> correlation)) <span class="sc">+</span></span>
+<span id="cb23-86"><a href="#cb23-86" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> ..density..), <span class="at">binwidth =</span> <span class="fl">0.02</span>, <span class="at">fill =</span> <span class="st">"grey77"</span>, <span class="at">color =</span> <span class="st">"grey77"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb23-87"><a href="#cb23-87" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">color =</span> <span class="st">"black"</span>, <span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">size =</span> <span class="fl">1.3</span>) <span class="sc">+</span></span>
+<span id="cb23-88"><a href="#cb23-88" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">data =</span> correlation_results <span class="sc">|&gt;</span> <span class="fu">filter</span>(gene_protein_Id <span class="sc">%in%</span> TFs), <span class="fu">aes</span>(<span class="at">x =</span> correlation), <span class="at">color =</span> <span class="st">"#00A5CF"</span>, <span class="at">size =</span> <span class="fl">1.3</span>) <span class="sc">+</span></span>
+<span id="cb23-89"><a href="#cb23-89" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">data =</span> correlation_results <span class="sc">|&gt;</span> <span class="fu">filter</span>(gene_protein_Id <span class="sc">%in%</span> SMs), <span class="fu">aes</span>(<span class="at">x =</span> correlation), <span class="at">color =</span> <span class="st">"#DE1A1A"</span>, <span class="at">size =</span> <span class="fl">1.3</span>) <span class="sc">+</span></span>
+<span id="cb23-90"><a href="#cb23-90" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Pearson correlation"</span>, <span class="at">y =</span> <span class="st">"Density"</span>) <span class="sc">+</span></span>
+<span id="cb23-91"><a href="#cb23-91" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">data =</span> medians_df, <span class="fu">aes</span>(<span class="at">xintercept =</span> medianValue), <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb23-92"><a href="#cb23-92" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="at">data =</span> medians_df, <span class="fu">aes</span>(<span class="at">x =</span> medianValue, <span class="at">y =</span> <span class="cn">Inf</span>, <span class="at">label =</span> <span class="fu">paste</span>(<span class="st">"Median:"</span>, <span class="fu">round</span>(medianValue, <span class="dv">3</span>))), <span class="at">vjust =</span> <span class="dv">3</span>, <span class="at">hjust =</span> <span class="fl">1.1</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">size =</span><span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb23-93"><a href="#cb23-93" aria-hidden="true" tabindex="-1"></a>  theme_personalised  </span>
+<span id="cb23-94"><a href="#cb23-94" aria-hidden="true" tabindex="-1"></a>hist_plot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="/Users/mariossi/Library/CloudStorage/Dropbox-Princeton/Papers/Proteomics_ciona/c.data_analysis/05.Ciona_rna_vs_protein/unnamed-chunk-1-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cairo_pdf</span>(<span class="st">"histogramPearson.pdf"</span>,<span class="at">width=</span><span class="fl">8.5</span>, <span class="at">height=</span><span class="fl">5.6</span>) </span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(hist_plot)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="fu">invisible</span>(<span class="fu">dev.off</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="examples" class="level3" data-number="2.3">
+<h3 data-number="2.3" class="anchored" data-anchor-id="examples"><span class="header-section-number">2.3</span> Examples</h3>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>ciona_rna_prot_wide.annPearson <span class="ot">&lt;-</span> ciona_rna_prot_wide.ann <span class="sc">|&gt;</span> <span class="fu">left_join</span>(correlation_results, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"protein_id_transcript"</span><span class="ot">=</span><span class="st">"gene_protein_Id"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="sc">~</span> <span class="fu">gsub</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">.x$"</span>, <span class="st">".prot"</span>, .), <span class="fu">ends_with</span>(<span class="st">".x"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="sc">~</span> <span class="fu">gsub</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">.y$"</span>, <span class="st">".rna"</span>, .), <span class="fu">ends_with</span>(<span class="st">".y"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(<span class="dv">22</span>,<span class="dv">24</span><span class="sc">:</span><span class="dv">26</span>,<span class="dv">28</span><span class="sc">:</span><span class="dv">33</span>))</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>bestTF <span class="ot">&lt;-</span> ciona_rna_prot_wide.annPearson <span class="sc">|&gt;</span> <span class="fu">filter</span>(protein_id_transcript <span class="sc">%in%</span> TFs) <span class="sc">|&gt;</span> </span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(correlation))</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>rna_color <span class="ot">&lt;-</span> <span class="st">"#00A5CF"</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>prot_color <span class="ot">&lt;-</span> <span class="st">"#ffb42c"</span></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>TFplot <span class="ot">&lt;-</span> bestTF <span class="sc">|&gt;</span> <span class="fu">pivot_longer</span>(<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>,<span class="dv">22</span>,<span class="dv">23</span>,<span class="dv">24</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(name, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"stage"</span>, <span class="st">"rna_prot"</span>), <span class="at">sep =</span> <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">hpf =</span> <span class="fu">as.numeric</span>(<span class="fu">as.character</span>(<span class="fu">recode</span>(stage, <span class="st">`</span><span class="at">unfE</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"0"</span>, <span class="st">`</span><span class="at">fertE</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"24"</span>, <span class="st">`</span><span class="at">cell16</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"141"</span>, <span class="st">`</span><span class="at">iniG</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"260"</span>, <span class="st">`</span><span class="at">latN</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"434"</span>, <span class="st">`</span><span class="at">midTII</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"632"</span>, <span class="st">`</span><span class="at">latTII</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"796"</span>, <span class="st">`</span><span class="at">larva</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"1038"</span>)))) <span class="sc">|&gt;</span> </span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(human_id <span class="sc">==</span> <span class="st">"HOXD10"</span> <span class="sc">|</span> human_id <span class="sc">==</span><span class="st">"NKX2-6"</span> ) <span class="sc">|&gt;</span> </span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> hpf, <span class="at">y =</span> value, <span class="at">color =</span> rna_prot), <span class="at">group =</span><span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Hpf"</span>,</span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Relative expresssion"</span>,</span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>       <span class="at">color =</span> <span class="st">"rna_prot"</span>) <span class="sc">+</span></span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">name =</span> <span class="st">"Hours post fertilization"</span>, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">"0.4"</span>, <span class="st">"2.65"</span>, <span class="st">"4.5"</span>, <span class="st">"7.4"</span>, <span class="st">"10.9"</span>, <span class="st">"13.5"</span>, <span class="st">"17.5"</span>), <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">24</span>, <span class="dv">141</span>, <span class="dv">260</span>, <span class="dv">434</span>, <span class="dv">632</span>, <span class="dv">796</span>, <span class="dv">1038</span>)) <span class="sc">+</span></span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="at">rna =</span> rna_color, <span class="at">prot =</span> prot_color)) <span class="sc">+</span></span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">color =</span> <span class="fu">guide_legend</span>(<span class="at">order =</span> <span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>Gene_Name) <span class="sc">+</span></span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a>  theme_personalised <span class="sc">+</span></span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">strip.background =</span> <span class="fu">element_blank</span>()) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span>
+<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a>TFplot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="/Users/mariossi/Library/CloudStorage/Dropbox-Princeton/Papers/Proteomics_ciona/c.data_analysis/05.Ciona_rna_vs_protein/examples-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>bestSMs <span class="ot">&lt;-</span>  ciona_rna_prot_wide.annPearson <span class="sc">|&gt;</span> <span class="fu">filter</span>(protein_id_transcript <span class="sc">%in%</span> SMs) <span class="sc">|&gt;</span> </span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(correlation))</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>SMplot <span class="ot">&lt;-</span> bestSMs <span class="sc">|&gt;</span> <span class="fu">pivot_longer</span>(<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>,<span class="dv">22</span>,<span class="dv">23</span>,<span class="dv">24</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(name, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"stage"</span>, <span class="st">"rna_prot"</span>), <span class="at">sep =</span> <span class="st">"</span><span class="sc">\\</span><span class="st">."</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">hpf =</span> <span class="fu">as.numeric</span>(<span class="fu">as.character</span>(<span class="fu">recode</span>(stage, <span class="st">`</span><span class="at">unfE</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"0"</span>, <span class="st">`</span><span class="at">fertE</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"24"</span>, <span class="st">`</span><span class="at">cell16</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"141"</span>, <span class="st">`</span><span class="at">iniG</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"260"</span>, <span class="st">`</span><span class="at">latN</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"434"</span>, <span class="st">`</span><span class="at">midTII</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"632"</span>, <span class="st">`</span><span class="at">latTII</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"796"</span>, <span class="st">`</span><span class="at">larva</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"1038"</span>)))) <span class="sc">|&gt;</span> </span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(human_id <span class="sc">==</span><span class="st">"MAPK14"</span> <span class="sc">|</span> human_id <span class="sc">==</span> <span class="st">"BMP4"</span>  ) <span class="sc">|&gt;</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> hpf, <span class="at">y =</span> value, <span class="at">color =</span> rna_prot), <span class="at">group =</span><span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Hpf"</span>,</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Relative expresssion"</span>,</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"rna_prot"</span>) <span class="sc">+</span></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">name =</span> <span class="st">"Hours post fertilization"</span>, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">"0.4"</span>, <span class="st">"2.65"</span>, <span class="st">"4.5"</span>, <span class="st">"7.4"</span>, <span class="st">"10.9"</span>, <span class="st">"13.5"</span>, <span class="st">"17.5"</span>), <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">24</span>, <span class="dv">141</span>, <span class="dv">260</span>, <span class="dv">434</span>, <span class="dv">632</span>, <span class="dv">796</span>, <span class="dv">1038</span>)) <span class="sc">+</span></span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="at">rna =</span> rna_color, <span class="at">prot =</span> prot_color)) <span class="sc">+</span></span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">color =</span> <span class="fu">guide_legend</span>(<span class="at">order =</span> <span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>Gene_Name) <span class="sc">+</span></span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>  theme_personalised <span class="sc">+</span></span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">strip.background =</span> <span class="fu">element_blank</span>()) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>TFplot <span class="sc">/</span> SMplot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="/Users/mariossi/Library/CloudStorage/Dropbox-Princeton/Papers/Proteomics_ciona/c.data_analysis/05.Ciona_rna_vs_protein/examples-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cairo_pdf</span>(<span class="st">"rna_protPearson_examples.pdf"</span>,<span class="at">width=</span><span class="fl">8.5</span>, <span class="at">height=</span><span class="fl">5.6</span>) </span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(TFplot <span class="sc">/</span> SMplot <span class="sc">+</span> <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>) <span class="sc">&amp;</span> <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>))</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="fu">invisible</span>(<span class="fu">dev.off</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="multiple-distances" class="level5" data-number="2.3.0.1">
+<h5 data-number="2.3.0.1" class="anchored" data-anchor-id="multiple-distances"><span class="header-section-number">2.3.0.1</span> multiple distances</h5>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="do">######################</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="do">## multiple distances</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="do">######################</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>compute_multiple_correlation <span class="ot">&lt;-</span> <span class="cf">function</span>(data) {</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  num_genes <span class="ot">&lt;-</span> <span class="fu">nrow</span>(data)</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  half_columns <span class="ot">&lt;-</span> <span class="fu">ncol</span>(data) <span class="sc">/</span> <span class="dv">2</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>  results <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>num_genes) {</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">#split the data half rna and prot</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>    rna_values <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(data[i, <span class="dv">1</span><span class="sc">:</span>half_columns])</span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>    prot_values <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(data[i, (half_columns<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span><span class="fu">ncol</span>(data)])</span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># calculate similarity | distance </span></span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>    pearson <span class="ot">&lt;-</span> <span class="fu">cor</span>(rna_values, prot_values, <span class="at">method =</span> <span class="st">"pearson"</span>)</span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>    spearman <span class="ot">&lt;-</span> <span class="fu">cor</span>(rna_values, prot_values, <span class="at">method =</span> <span class="st">"spearman"</span>)</span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>    cosine <span class="ot">&lt;-</span> <span class="fu">cosine</span>(rna_values, prot_values)</span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a>    results[[<span class="fu">rownames</span>(data)[i]]] <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">rna_values =</span> rna_values,</span>
+<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a>      <span class="at">prot_values =</span> prot_values,</span>
+<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a>      <span class="at">pearson_correlation =</span> pearson,</span>
+<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a>      <span class="at">spearman_correlation =</span> spearman,</span>
+<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a>      <span class="at">cosine_similarity =</span> cosine</span>
+<span id="cb28-28"><a href="#cb28-28" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb28-29"><a href="#cb28-29" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb28-30"><a href="#cb28-30" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb28-31"><a href="#cb28-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(results)</span>
+<span id="cb28-32"><a href="#cb28-32" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb28-33"><a href="#cb28-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-34"><a href="#cb28-34" aria-hidden="true" tabindex="-1"></a>correlation_data <span class="ot">&lt;-</span> <span class="fu">compute_multiple_correlation</span>(ciona_rna_prot_wide[,<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">6</span><span class="sc">:</span><span class="dv">21</span>)] <span class="sc">|&gt;</span>  <span class="fu">column_to_rownames</span>(<span class="st">"protein_id_transcript"</span>))</span>
+<span id="cb28-35"><a href="#cb28-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-36"><a href="#cb28-36" aria-hidden="true" tabindex="-1"></a>correlation_pearson <span class="ot">&lt;-</span> <span class="fu">c</span>()</span>
+<span id="cb28-37"><a href="#cb28-37" aria-hidden="true" tabindex="-1"></a>correlation_spearman <span class="ot">&lt;-</span> <span class="fu">c</span>()</span>
+<span id="cb28-38"><a href="#cb28-38" aria-hidden="true" tabindex="-1"></a>correlation_cosine <span class="ot">&lt;-</span> <span class="fu">c</span>()</span>
+<span id="cb28-39"><a href="#cb28-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-40"><a href="#cb28-40" aria-hidden="true" tabindex="-1"></a><span class="co"># Iterate through the keys in correlation_data and add it to the vector</span></span>
+<span id="cb28-41"><a href="#cb28-41" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (key <span class="cf">in</span> <span class="fu">names</span>(correlation_data)) {</span>
+<span id="cb28-42"><a href="#cb28-42" aria-hidden="true" tabindex="-1"></a>  correlation_pearson[key] <span class="ot">&lt;-</span> correlation_data[[key]][[<span class="st">"pearson_correlation"</span>]]</span>
+<span id="cb28-43"><a href="#cb28-43" aria-hidden="true" tabindex="-1"></a>  correlation_spearman[key] <span class="ot">&lt;-</span> correlation_data[[key]][[<span class="st">"spearman_correlation"</span>]]</span>
+<span id="cb28-44"><a href="#cb28-44" aria-hidden="true" tabindex="-1"></a>  correlation_cosine[key] <span class="ot">&lt;-</span> correlation_data[[key]][[<span class="st">"cosine_similarity"</span>]]</span>
+<span id="cb28-45"><a href="#cb28-45" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb28-46"><a href="#cb28-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-47"><a href="#cb28-47" aria-hidden="true" tabindex="-1"></a>correlation_data <span class="sc">|&gt;</span>  <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$`KY21.Chr1.10.v1.nonSL2-1`
+$`KY21.Chr1.10.v1.nonSL2-1`$rna_values
+[1] 1.0384392 1.0077389 1.0003652 0.9608200 0.9999666 0.8621860 1.0590843 1.0713998
+
+$`KY21.Chr1.10.v1.nonSL2-1`$prot_values
+[1] 0.9773132 0.8807690 0.9336882 1.2721132 0.9843623 1.2074573 1.0692959 0.6750007
+
+$`KY21.Chr1.10.v1.nonSL2-1`$pearson_correlation
+[1] -0.6917802
+
+$`KY21.Chr1.10.v1.nonSL2-1`$spearman_correlation
+[1] -0.6666667
+
+$`KY21.Chr1.10.v1.nonSL2-1`$cosine_similarity
+          [,1]
+[1,] 0.9756414
+
+
+$`KY21.Chr1.1000.v1.SL1-1`
+$`KY21.Chr1.1000.v1.SL1-1`$rna_values
+[1] 1.0596224 1.0790983 1.0624815 0.9170924 0.9415440 0.9467448 1.0252110 0.9682055
+
+$`KY21.Chr1.1000.v1.SL1-1`$prot_values
+[1] 1.9007229 2.0551335 1.3690676 0.7352542 0.3681252 0.4305028 0.4597858 0.6814079
+
+$`KY21.Chr1.1000.v1.SL1-1`$pearson_correlation
+[1] 0.8085546
+
+$`KY21.Chr1.1000.v1.SL1-1`$spearman_correlation
+[1] 0.7142857
+
+$`KY21.Chr1.1000.v1.SL1-1`$cosine_similarity
+          [,1]
+[1,] 0.8677392
+
+
+$`KY21.Chr1.1001.v1.SL1-1`
+$`KY21.Chr1.1001.v1.SL1-1`$rna_values
+[1] 0.9020774 0.8561668 0.9740771 0.9419530 0.9803115 1.0387335 1.1268801 1.1798004
+
+$`KY21.Chr1.1001.v1.SL1-1`$prot_values
+[1] 1.0318583 0.9798091 1.1924791 1.4503818 1.0312420 0.8004865 0.7686521 0.7450911
+
+$`KY21.Chr1.1001.v1.SL1-1`$pearson_correlation
+[1] -0.6238955
+
+$`KY21.Chr1.1001.v1.SL1-1`$spearman_correlation
+[1] -0.6904762
+
+$`KY21.Chr1.1001.v1.SL1-1`$cosine_similarity
+          [,1]
+[1,] 0.9568045
+
+
+$`KY21.Chr1.1002.v1.SL1-1`
+$`KY21.Chr1.1002.v1.SL1-1`$rna_values
+[1] 3.3604154 3.1990297 0.5129556 0.1238170 0.1867595 0.1989376 0.2401913 0.1778940
+
+$`KY21.Chr1.1002.v1.SL1-1`$prot_values
+[1] 1.68798864 1.61880001 2.06544885 1.52465832 0.85103367 0.12658311 0.06142944 0.06405796
+
+$`KY21.Chr1.1002.v1.SL1-1`$pearson_correlation
+[1] 0.5258217
+
+$`KY21.Chr1.1002.v1.SL1-1`$spearman_correlation
+[1] 0.5238095
+
+$`KY21.Chr1.1002.v1.SL1-1`$cosine_similarity
+          [,1]
+[1,] 0.7338177
+
+
+$`KY21.Chr1.1004.v1.nonSL4-1`
+$`KY21.Chr1.1004.v1.nonSL4-1`$rna_values
+[1] 0.9073397 0.8802152 0.9871140 0.9747736 1.0308486 1.0847565 1.0517058 1.0832467
+
+$`KY21.Chr1.1004.v1.nonSL4-1`$prot_values
+[1] 0.9442009 0.8639638 1.0945943 2.0136840 1.2426533 0.6569501 0.5959828 0.5879708
+
+$`KY21.Chr1.1004.v1.nonSL4-1`$pearson_correlation
+[1] -0.3219929
+
+$`KY21.Chr1.1004.v1.nonSL4-1`$spearman_correlation
+[1] -0.5238095
+
+$`KY21.Chr1.1004.v1.nonSL4-1`$cosine_similarity
+          [,1]
+[1,] 0.9026896
+
+
+$`KY21.Chr1.1005.v1.ND1-1`
+$`KY21.Chr1.1005.v1.ND1-1`$rna_values
+[1] 1.0017549 1.0039570 1.3570765 1.1793695 0.9707127 0.9283415 0.7826826 0.7761052
+
+$`KY21.Chr1.1005.v1.ND1-1`$prot_values
+[1] 2.1097983 2.1539167 1.7041321 0.6168512 0.6881355 0.3991582 0.2099970 0.1180110
+
+$`KY21.Chr1.1005.v1.ND1-1`$pearson_correlation
+[1] 0.528907
+
+$`KY21.Chr1.1005.v1.ND1-1`$spearman_correlation
+[1] 0.7380952
+
+$`KY21.Chr1.1005.v1.ND1-1`$cosine_similarity
+          [,1]
+[1,] 0.8286842</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># histogram for the correlation results </span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>plot_histogram <span class="ot">&lt;-</span> <span class="cf">function</span>(correlation_values, correlation_name) {</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">correlation =</span> correlation_values)</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x=</span>correlation)) <span class="sc">+</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_histogram</span>(<span class="at">binwidth=</span><span class="fl">0.05</span>, <span class="at">fill=</span><span class="st">"blue"</span>, <span class="at">color=</span><span class="st">"black"</span>, <span class="at">alpha=</span><span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title=</span><span class="st">"Distribution of individual gene-protein coefficients"</span>,</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">x=</span><span class="fu">paste</span>(correlation_name,<span class="st">"correlation"</span>),</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">y=</span><span class="st">"Counts"</span>) <span class="sc">+</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_pubr</span>()</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>  p</span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_histogram</span>(correlation_pearson,<span class="st">"Pearson"</span>) <span class="sc">+</span></span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_histogram</span>(correlation_spearman,<span class="st">"Spearman"</span>) <span class="sc">+</span></span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_histogram</span>(correlation_cosine,<span class="st">"Cosine"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="/Users/mariossi/Library/CloudStorage/Dropbox-Princeton/Papers/Proteomics_ciona/c.data_analysis/05.Ciona_rna_vs_protein/unnamed-chunk-2-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># inspect the top and bottom correaltion by distance | similarity</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="do">#####  Extract values from correlation_data more efficiently</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>gene_count <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">names</span>(correlation_data))</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>gene_names <span class="ot">&lt;-</span> <span class="fu">character</span>(gene_count)</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>pearson_correlation <span class="ot">&lt;-</span> <span class="fu">numeric</span>(gene_count)</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>spearman_correlation <span class="ot">&lt;-</span> <span class="fu">numeric</span>(gene_count)</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>cosine_similarity <span class="ot">&lt;-</span> <span class="fu">numeric</span>(gene_count)</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Loop through the correlation_data and extract the values</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(gene_count)) {</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>  key <span class="ot">&lt;-</span> <span class="fu">names</span>(correlation_data)[i]</span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>  gene_names[i] <span class="ot">&lt;-</span> key</span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>  pearson_correlation[i] <span class="ot">&lt;-</span> correlation_data[[key]]<span class="sc">$</span>pearson_correlation</span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>  spearman_correlation[i] <span class="ot">&lt;-</span> correlation_data[[key]]<span class="sc">$</span>spearman_correlation</span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>  cosine_similarity[i] <span class="ot">&lt;-</span> correlation_data[[key]]<span class="sc">$</span>cosine_similarity</span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a dataframe with the summarized results</span></span>
+<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a>summary_correlation_individualGeneId <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">Gene_Name =</span> gene_names,</span>
+<span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">pearson_correlation =</span> pearson_correlation,</span>
+<span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">spearman_correlation =</span> spearman_correlation,</span>
+<span id="cb31-24"><a href="#cb31-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">cosine_similarity =</span> cosine_similarity,</span>
+<span id="cb31-25"><a href="#cb31-25" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb31-26"><a href="#cb31-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-27"><a href="#cb31-27" aria-hidden="true" tabindex="-1"></a>summary_correlation_individualGeneId <span class="sc">|&gt;</span> <span class="fu">head</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 4
+  Gene_Name                  pearson_correlation spearman_correlation cosine_similarity
+  &lt;chr&gt;                                    &lt;dbl&gt;                &lt;dbl&gt;             &lt;dbl&gt;
+1 KY21.Chr1.10.v1.nonSL2-1                -0.692               -0.667             0.976
+2 KY21.Chr1.1000.v1.SL1-1                  0.809                0.714             0.868
+3 KY21.Chr1.1001.v1.SL1-1                 -0.624               -0.690             0.957
+4 KY21.Chr1.1002.v1.SL1-1                  0.526                0.524             0.734
+5 KY21.Chr1.1004.v1.nonSL4-1              -0.322               -0.524             0.903
+6 KY21.Chr1.1005.v1.ND1-1                  0.529                0.738             0.829</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># make a list to access for plotting</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>select_top_bottom_rows <span class="ot">&lt;-</span> <span class="cf">function</span>(df, column_name, <span class="at">n =</span> <span class="dv">6</span>) {</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  top_rows <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arrange</span>(<span class="fu">desc</span>({{ column_name }})) <span class="sc">%&gt;%</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">head</span>(n)</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>  bottom_rows <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arrange</span>({{ column_name }}) <span class="sc">%&gt;%</span></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">head</span>(n)</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">top =</span> top_rows, <span class="at">bottom =</span> bottom_rows) )</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>pearson_top_bottom <span class="ot">&lt;-</span> <span class="fu">select_top_bottom_rows</span>(summary_correlation_individualGeneId, pearson_correlation)</span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>spearman_top_bottom <span class="ot">&lt;-</span> <span class="fu">select_top_bottom_rows</span>(summary_correlation_individualGeneId, spearman_correlation)</span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>cosine_top_bottom <span class="ot">&lt;-</span> <span class="fu">select_top_bottom_rows</span>(summary_correlation_individualGeneId, cosine_similarity)</span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a function to generate heatmaps</span></span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>create_heatmap <span class="ot">&lt;-</span> <span class="cf">function</span>(vector_name, rna_values, prot_values, cosine_coefficient, pearson_coefficient) {</span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">time =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">8</span>, <span class="at">RNA =</span> rna_values, <span class="at">Protein =</span> prot_values)</span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>  df_long <span class="ot">&lt;-</span> <span class="fu">gather</span>(df, <span class="at">key =</span> <span class="st">"Type"</span>, <span class="at">value =</span> <span class="st">"Value"</span>, <span class="sc">-</span>time)</span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_long, <span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">y =</span> Value, <span class="at">color =</span> Type)) <span class="sc">+</span></span>
+<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb33-27"><a href="#cb33-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="fu">paste</span>(vector_name),</span>
+<span id="cb33-28"><a href="#cb33-28" aria-hidden="true" tabindex="-1"></a>         <span class="at">subtitle =</span> <span class="fu">paste</span>(<span class="st">"Cosine:"</span>, <span class="fu">round</span>(cosine_coefficient, <span class="dv">2</span>), <span class="st">"Pearson:"</span>, <span class="fu">round</span>(pearson_coefficient, <span class="dv">2</span>)),</span>
+<span id="cb33-29"><a href="#cb33-29" aria-hidden="true" tabindex="-1"></a>         <span class="at">x =</span> <span class="st">"Time"</span>,</span>
+<span id="cb33-30"><a href="#cb33-30" aria-hidden="true" tabindex="-1"></a>         <span class="at">y =</span> <span class="st">"Counts"</span>,</span>
+<span id="cb33-31"><a href="#cb33-31" aria-hidden="true" tabindex="-1"></a>         <span class="at">color =</span> <span class="st">"Type"</span>) <span class="sc">+</span></span>
+<span id="cb33-32"><a href="#cb33-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">guides</span>(<span class="at">color =</span> <span class="fu">guide_legend</span>(<span class="at">order =</span> <span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb33-33"><a href="#cb33-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_pubr</span>(<span class="at">legend =</span> <span class="st">"bottom"</span>)</span>
+<span id="cb33-34"><a href="#cb33-34" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb33-35"><a href="#cb33-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(p)</span>
+<span id="cb33-36"><a href="#cb33-36" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb33-37"><a href="#cb33-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-38"><a href="#cb33-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Correct the mistake in generate_heatmaps function</span></span>
+<span id="cb33-39"><a href="#cb33-39" aria-hidden="true" tabindex="-1"></a>generate_heatmaps <span class="ot">&lt;-</span> <span class="cf">function</span>(top_bottom, metric_name) {</span>
+<span id="cb33-40"><a href="#cb33-40" aria-hidden="true" tabindex="-1"></a>  top_heatmaps <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb33-41"><a href="#cb33-41" aria-hidden="true" tabindex="-1"></a>  bottom_heatmaps <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb33-42"><a href="#cb33-42" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb33-43"><a href="#cb33-43" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(top_bottom<span class="sc">$</span>top)) {</span>
+<span id="cb33-44"><a href="#cb33-44" aria-hidden="true" tabindex="-1"></a>    vector_name <span class="ot">&lt;-</span> top_bottom<span class="sc">$</span>top<span class="sc">$</span>Gene_Name[i]</span>
+<span id="cb33-45"><a href="#cb33-45" aria-hidden="true" tabindex="-1"></a>    vector_rna_values <span class="ot">&lt;-</span> correlation_data[[vector_name]]<span class="sc">$</span>rna_values</span>
+<span id="cb33-46"><a href="#cb33-46" aria-hidden="true" tabindex="-1"></a>    vector_prot_values <span class="ot">&lt;-</span> correlation_data[[vector_name]]<span class="sc">$</span>prot_values</span>
+<span id="cb33-47"><a href="#cb33-47" aria-hidden="true" tabindex="-1"></a>    cosine_coefficient <span class="ot">&lt;-</span> top_bottom<span class="sc">$</span>top<span class="sc">$</span>cosine_similarity[i]</span>
+<span id="cb33-48"><a href="#cb33-48" aria-hidden="true" tabindex="-1"></a>    pearson_coefficient <span class="ot">&lt;-</span> top_bottom<span class="sc">$</span>top<span class="sc">$</span>pearson_correlation[i]</span>
+<span id="cb33-49"><a href="#cb33-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-50"><a href="#cb33-50" aria-hidden="true" tabindex="-1"></a>    heatmap <span class="ot">&lt;-</span> <span class="fu">create_heatmap</span>(vector_name, vector_rna_values, vector_prot_values, cosine_coefficient, pearson_coefficient)</span>
+<span id="cb33-51"><a href="#cb33-51" aria-hidden="true" tabindex="-1"></a>    bottom_heatmaps[[i]] <span class="ot">&lt;-</span> heatmap</span>
+<span id="cb33-52"><a href="#cb33-52" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb33-53"><a href="#cb33-53" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(top_bottom<span class="sc">$</span>bottom)) {</span>
+<span id="cb33-54"><a href="#cb33-54" aria-hidden="true" tabindex="-1"></a>    vector_name <span class="ot">&lt;-</span> top_bottom<span class="sc">$</span>bottom<span class="sc">$</span>Gene_Name[i]</span>
+<span id="cb33-55"><a href="#cb33-55" aria-hidden="true" tabindex="-1"></a>    vector_rna_values <span class="ot">&lt;-</span> correlation_data[[vector_name]]<span class="sc">$</span>rna_values</span>
+<span id="cb33-56"><a href="#cb33-56" aria-hidden="true" tabindex="-1"></a>    vector_prot_values <span class="ot">&lt;-</span> correlation_data[[vector_name]]<span class="sc">$</span>prot_values</span>
+<span id="cb33-57"><a href="#cb33-57" aria-hidden="true" tabindex="-1"></a>    cosine_coefficient <span class="ot">&lt;-</span> top_bottom<span class="sc">$</span>bottom<span class="sc">$</span>cosine_similarity[i]</span>
+<span id="cb33-58"><a href="#cb33-58" aria-hidden="true" tabindex="-1"></a>    pearson_coefficient <span class="ot">&lt;-</span> top_bottom<span class="sc">$</span>bottom<span class="sc">$</span>pearson_correlation[i]</span>
+<span id="cb33-59"><a href="#cb33-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-60"><a href="#cb33-60" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb33-61"><a href="#cb33-61" aria-hidden="true" tabindex="-1"></a>    heatmap <span class="ot">&lt;-</span> <span class="fu">create_heatmap</span>(vector_name, vector_rna_values, vector_prot_values, cosine_coefficient, pearson_coefficient)</span>
+<span id="cb33-62"><a href="#cb33-62" aria-hidden="true" tabindex="-1"></a>    top_heatmaps[[i]] <span class="ot">&lt;-</span> heatmap</span>
+<span id="cb33-63"><a href="#cb33-63" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb33-64"><a href="#cb33-64" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb33-65"><a href="#cb33-65" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Combine the heatmaps</span></span>
+<span id="cb33-66"><a href="#cb33-66" aria-hidden="true" tabindex="-1"></a>  top_row <span class="ot">&lt;-</span> <span class="fu">wrap_plots</span>(top_heatmaps) <span class="sc">+</span> <span class="fu">plot_layout</span>(<span class="at">heights =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>)) <span class="sc">+</span> <span class="fu">plot_annotation</span>(<span class="at">title =</span> <span class="fu">paste</span>(<span class="st">"Distance:"</span>, metric_name))</span>
+<span id="cb33-67"><a href="#cb33-67" aria-hidden="true" tabindex="-1"></a>  bottom_row <span class="ot">&lt;-</span> <span class="fu">wrap_plots</span>(bottom_heatmaps) <span class="sc">+</span> <span class="fu">plot_layout</span>(<span class="at">heights =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>)) <span class="sc">+</span> <span class="fu">plot_annotation</span>(<span class="at">title =</span> <span class="fu">paste</span>(<span class="st">"Distance:"</span>, metric_name))</span>
+<span id="cb33-68"><a href="#cb33-68" aria-hidden="true" tabindex="-1"></a>  combined_plot <span class="ot">&lt;-</span> top_row <span class="sc">/</span> bottom_row</span>
+<span id="cb33-69"><a href="#cb33-69" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb33-70"><a href="#cb33-70" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(combined_plot)</span>
+<span id="cb33-71"><a href="#cb33-71" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb33-72"><a href="#cb33-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-73"><a href="#cb33-73" aria-hidden="true" tabindex="-1"></a><span class="co"># generate heatmaps for each metric</span></span>
+<span id="cb33-74"><a href="#cb33-74" aria-hidden="true" tabindex="-1"></a>metrics_list <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb33-75"><a href="#cb33-75" aria-hidden="true" tabindex="-1"></a>  <span class="at">cosine =</span> cosine_top_bottom,</span>
+<span id="cb33-76"><a href="#cb33-76" aria-hidden="true" tabindex="-1"></a>  <span class="at">pearson =</span> pearson_top_bottom,</span>
+<span id="cb33-77"><a href="#cb33-77" aria-hidden="true" tabindex="-1"></a>  <span class="at">spearman =</span> spearman_top_bottom</span>
+<span id="cb33-78"><a href="#cb33-78" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb33-79"><a href="#cb33-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-80"><a href="#cb33-80" aria-hidden="true" tabindex="-1"></a><span class="co"># list and final plot</span></span>
+<span id="cb33-81"><a href="#cb33-81" aria-hidden="true" tabindex="-1"></a>all_heatmaps <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb33-82"><a href="#cb33-82" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (metric_name <span class="cf">in</span> <span class="fu">names</span>(metrics_list)) {</span>
+<span id="cb33-83"><a href="#cb33-83" aria-hidden="true" tabindex="-1"></a>  all_heatmaps[[metric_name]] <span class="ot">&lt;-</span> <span class="fu">generate_heatmaps</span>(metrics_list[[metric_name]], metric_name)</span>
+<span id="cb33-84"><a href="#cb33-84" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb33-85"><a href="#cb33-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-86"><a href="#cb33-86" aria-hidden="true" tabindex="-1"></a>all_heatmaps<span class="sc">$</span>pearson <span class="sc">+</span> <span class="fu">plot_annotation</span>(<span class="at">title =</span> <span class="st">"Distance Pearson"</span>)  <span class="sc">+</span>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>) <span class="sc">&amp;</span> <span class="fu">theme_pubr</span>(<span class="at">legend =</span> <span class="st">"bottom"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="/Users/mariossi/Library/CloudStorage/Dropbox-Princeton/Papers/Proteomics_ciona/c.data_analysis/05.Ciona_rna_vs_protein/unnamed-chunk-3-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>all_heatmaps<span class="sc">$</span>spearman <span class="sc">+</span> <span class="fu">plot_annotation</span>(<span class="at">title =</span> <span class="st">"Distance Spearman"</span>)  <span class="sc">+</span>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>) <span class="sc">&amp;</span> <span class="fu">theme_pubr</span>(<span class="at">legend =</span> <span class="st">"bottom"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="/Users/mariossi/Library/CloudStorage/Dropbox-Princeton/Papers/Proteomics_ciona/c.data_analysis/05.Ciona_rna_vs_protein/unnamed-chunk-3-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>all_heatmaps<span class="sc">$</span>cosine <span class="sc">+</span> <span class="fu">plot_annotation</span>(<span class="at">title =</span> <span class="st">"Distance cosine"</span>)  <span class="sc">+</span>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">'collect'</span>) <span class="sc">&amp;</span> <span class="fu">theme_pubr</span>(<span class="at">legend =</span> <span class="st">"bottom"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="/Users/mariossi/Library/CloudStorage/Dropbox-Princeton/Papers/Proteomics_ciona/c.data_analysis/05.Ciona_rna_vs_protein/unnamed-chunk-3-3.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+<script src="05.Ciona_rna_vs_protein_files/libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
