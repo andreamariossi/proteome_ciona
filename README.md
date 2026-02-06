@@ -6,6 +6,7 @@
 **Code repository for:** "Quantitative proteome dynamics across embryogenesis in a model chordate"  
 **Journal:** Cell iScience  
 **DOI:** [10.1016/j.isci.2024.109432](https://doi.org/10.1016/j.isci.2024.109355)
+
 **Authors:** Andrea Mariossi * Alexander Frese et al.
 
 ---
@@ -26,7 +27,7 @@ This repository contains the complete analysis code and processed data for the q
 - **Processed protein matrices**: This repository (`data/`)
 
 ## Repository Structure
-
+```
 proteome_ciona/
 ├── annotation/             # Metadata and annotation
 ├── data/                   # Data files
@@ -41,5 +42,4 @@ proteome_ciona/
 │   ├── preprocessing/      # Data cleaning and normalization
 │   ├── analysis/         	# All figures
 ├── html_files/             # Rendered analysis reports (HTML) - If GitHub does not render an HTML file correctly, download it and open it locally (Chrome/Safari/Firefox).
-└── README.md              # This file
-
+```
