@@ -1,12 +1,12 @@
 # Quantitative Proteome Dynamics Across Embryogenesis in *Ciona*
 
-[![DOI](https://img.shields.io/badge/DOI-10.1016%2Fj.isci.2024.109432-blue)](https://doi.org/10.1016/j.isci.2024.109432)
+[![DOI](https://img.shields.io/badge/DOI-10.1016%2Fj.isci.2024.109432-blue)](https://doi.org/10.1016/j.isci.2024.109355)
 ![GitHub last commit](https://img.shields.io/github/last-commit/andreamariossi/proteome_ciona)
 
 **Code repository for:** "Quantitative proteome dynamics across embryogenesis in a model chordate"  
 **Journal:** Cell iScience  
-**DOI:** [10.1016/j.isci.2024.109432](https://doi.org/10.1016/j.isci.2024.109432)  
-**Authors:** Alexander Frese & Andrea Mariossi et al.
+**DOI:** [10.1016/j.isci.2024.109432](https://doi.org/10.1016/j.isci.2024.109355)
+**Authors:** Andrea Mariossi * Alexander Frese et al.
 
 ---
 
